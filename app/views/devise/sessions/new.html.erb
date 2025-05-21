@@ -1,0 +1,43 @@
+<!-- Fuente Oswald -->
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+
+<section class="vh-100 d-flex justify-content-center align-items-center text-white"
+         style="
+           font-family: 'Oswald', sans-serif;
+           background-image: url('https://images.unsplash.com/photo-1709587825135-80b00570c355?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fHBhZGVsJTIwY291cnR8ZW58MHx8MHx8fDA%3D');
+           background-size: cover;
+           background-position: center;
+         ">
+  <div style="width: 100%; max-width: 500px; padding: 2rem; backdrop-filter: blur(8px); background-color: rgba(0,0,0,0.5); border-radius: 15px;">
+    <h2 class="text-center mb-4 fw-bold" style="color: #f2b705; text-shadow: 2px 2px 5px rgba(0,0,0,0.7); font-size: 2.5rem;">
+      Iniciar sesión
+    </h2>
+
+    <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+      <div class="mb-3">
+        <%= f.label :email, class: "form-label" %>
+        <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "form-control", style: "border-radius: 10px;" %>
+      </div>
+
+      <div class="mb-3">
+        <%= f.label :password, class: "form-label" %>
+        <%= f.password_field :password, autocomplete: "current-password", class: "form-control", style: "border-radius: 10px;" %>
+      </div>
+
+      <% if devise_mapping.rememberable? %>
+        <div class="form-check mb-3">
+          <%= f.check_box :remember_me, class: "form-check-input" %>
+          <%= f.label :remember_me, class: "form-check-label" %>
+        </div>
+      <% end %>
+
+      <div class="d-grid mb-3">
+        <%= f.submit "Entrar", class: "btn btn-warning fw-bold", style: "border-radius: 10px;" %>
+      </div>
+    <% end %>
+
+    <div class="text-center mt-3">
+      <%= render "devise/shared/links" %>
+    </div>
+  </div>
+</section>

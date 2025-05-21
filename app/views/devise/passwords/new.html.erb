@@ -1,0 +1,33 @@
+<!-- Fuente Oswald -->
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+
+<section class="vh-100 d-flex justify-content-center align-items-center text-white"
+         style="
+           font-family: 'Oswald', sans-serif;
+           background-image: url('https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1500&q=80');
+           background-size: cover;
+           background-position: center;
+         ">
+  <div style="width: 100%; max-width: 500px; padding: 2rem; backdrop-filter: blur(8px); background-color: rgba(0,0,0,0.5); border-radius: 15px;">
+    <h2 class="text-center mb-4 fw-bold" style="color: #f2b705; text-shadow: 2px 2px 5px rgba(0,0,0,0.7); font-size: 2.5rem;">
+      ¿Olvidaste tu contraseña?
+    </h2>
+
+    <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post }) do |f| %>
+      <%= render "devise/shared/error_messages", resource: resource %>
+
+      <div class="mb-3">
+        <%= f.label :email, "Correo electrónico", class: "form-label" %>
+        <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "form-control", style: "border-radius: 10px;" %>
+      </div>
+
+      <div class="d-grid mb-3">
+        <%= f.submit "Enviar instrucciones para restablecer contraseña", class: "btn btn-warning fw-bold", style: "border-radius: 10px;" %>
+      </div>
+    <% end %>
+
+    <div class="text-center mt-3">
+      <%= render "devise/shared/links" %>
+    </div>
+  </div>
+</section>
