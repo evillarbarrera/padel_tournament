@@ -1,0 +1,39 @@
+
+<!-- Agrega este link en el <head> de tu layout si no tienes la fuente Oswald -->
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+
+<section class="vh-100 d-flex" style="font-family: 'Oswald', sans-serif;">
+  <!-- Columna Izquierda: Imagen -->
+  <div class="col-12 col-md-6 p-0">
+    <img src="https://img.freepik.com/foto-gratis/paleta-angulo-bolas-campo_23-2149459004.jpg?semt=ais_hybrid&w=740" 
+         alt="Jugador de Pádel" 
+         class="img-fluid vh-100 w-100 object-fit-cover" 
+         style="object-fit: cover;">
+  </div>
+
+
+  <!-- Columna Derecha: Datos -->
+  <div class="col-12 col-md-6 d-flex flex-column justify-content-center align-items-center text-white" 
+       style="background: linear-gradient(135deg, #1abc9c, #3498db); padding: 3rem;">
+    <h1 class="mb-4 fw-bold" style="color: #f1c40f; text-shadow: 2px 2px 4px rgba(0,0,0,0.6); font-size: 3rem;">
+      Mi Perfil
+    </h1>
+
+    <div class="card bg-white bg-opacity-10 border-0 shadow-lg d-flex flex-column align-items-center" style="width: 100%; max-width: 480px; border-radius: 15px; padding: 2rem;">
+      <!-- Imagen de perfil por defecto -->
+      <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Foto de perfil" 
+           class="mb-4" 
+           style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid #f1c40f; box-shadow: 0 0 10px rgba(241,196,15,0.7);">
+
+      <div class="card-body text-white px-0" style="width: 100%;">
+        <%= form_for @user do |f| %>
+          <p class="fs-5"><strong>Nombre:</strong> <%= @user.nombre %></p>
+          <p class="fs-5"><strong>Email:</strong> <%= @user.email %></p>
+          <p class="fs-5"><strong>Teléfono:</strong> <%= @user.telefono %></p>
+          <p class="fs-5"><strong>Categoría:</strong> <%= @user.categoria %></p>
+          <p class="fs-5"><strong>Puntos:</strong> <%= @user.puntos %></p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</section>
