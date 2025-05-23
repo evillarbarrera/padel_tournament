@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  club: one
+  user: one
+  nombre: MyString
+  estado: MyString
+  fecha_creacion: 2025-05-23 09:24:34
+
+two:
+  club: two
+  user: two
+  nombre: MyString
+  estado: MyString
+  fecha_creacion: 2025-05-23 09:24:34

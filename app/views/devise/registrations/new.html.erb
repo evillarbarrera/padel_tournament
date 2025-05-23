@@ -1,58 +1,120 @@
-<!-- Fuente Oswald -->
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
-
 <section class="vh-100 d-flex justify-content-center align-items-center text-white"
-         style="
-           font-family: 'Oswald', sans-serif;
-           background-image: url('https://media.istockphoto.com/id/1473484607/es/foto/j%C3%B3venes-jugando-al-padel-tennis.jpg?s=612x612&w=0&k=20&c=bobo3NbiZ8ymuhi2ugGu5CSQ8frtiZ7KVJYY4cof8pc=');
-           background-size: cover;
-           background-position: center;
-         ">
-  <div style="width: 100%; max-width: 500px; padding: 2rem; backdrop-filter: blur(8px); background-color: rgba(0,0,0,0.5); border-radius: 15px;">
-    <h2 class="text-center mb-4 fw-bold" style="color: #f2b705; text-shadow: 2px 2px 5px rgba(0,0,0,0.7); font-size: 2.5rem;">
-      Registro
-    </h2>
+         style="font-family: 'Oswald', sans-serif; background-image: url('https://media.istockphoto.com/id/1473484607/es/foto/j%C3%B3venes-jugando-al-padel-tennis.jpg?s=612x612&w=0&k=20&c=bobo3NbiZ8ymuhi2ugGu5CSQ8frtiZ7KVJYY4cof8pc='); background-size: cover; background-position: center;">
+  <div class="container" style="max-width: 900px; padding: 1rem 1.5rem; backdrop-filter: blur(8px); background-color: rgba(0,0,0,0.6); border-radius: 15px; font-size: 0.85rem;">
+    <h2 class="text-center mb-3 fw-bold" style="color: #f2b705; text-shadow: 2px 2px 5px rgba(0,0,0,0.7); font-size: 1.8rem;">Registro</h2>
 
-    <%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
+    <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { multipart: true }) do |f| %>
       <%= devise_error_messages! %>
 
-      <div class="mb-3">
-        <%= f.label :nombre, class: "form-label" %>
-        <%= f.text_field :nombre, class: "form-control", style: "border-radius: 10px;" %>
+      <!-- Tipo de usuario -->
+      <div class="mb-4" style="max-width: 400px; margin: 0 auto;">
+        <%= label_tag :tipo_usuario, "¿Qué tipo de cuenta deseas crear?", class: "form-label fw-semibold", style: "font-size: 1.1rem; margin-bottom: 0.4rem; display: block;" %>
+        <%= select_tag :tipo_usuario,
+              options_for_select([['Jugador', 'jugador'], ['Club', 'club']]),
+              prompt: "Selecciona una opción",
+              class: "form-select form-select-sm",
+              id: "tipo_usuario_select",
+              style: "border-radius: 8px; height: 36px;" %>
       </div>
 
-      <div class="mb-3">
-        <%= f.label :email, class: "form-label" %>
-        <%= f.email_field :email, class: "form-control", style: "border-radius: 10px;" %>
+      <!-- Contenedor de formularios, oculto si no hay selección -->
+      <div class="row g-3" id="form_columns" style="display: none;">
+        <!-- Columna izquierda: datos del club -->
+        <div class="col-md-6" id="club_fields" style="display: none;">
+          <h5 class="text-white mb-3" style="font-size: 1.1rem;">Información del Club</h5>
+
+          <%# -- Campos club -- %>
+          <% [:club_nombre, :club_direccion, :club_telefono, :club_email].each do |field| %>
+            <div class="mb-3">
+              <%= label_tag field, field.to_s.humanize, class: "form-label", style: "font-size: 0.9rem; margin-bottom: 0.25rem; width: 100%;" %>
+              <%= text_field_tag field, nil, class: "form-control form-control-sm input-compact", style: "border-radius: 8px; height: 34px; width: 100%;" %>
+            </div>
+          <% end %>
+
+          <div class="mb-3">
+            <%= label_tag :club_logo, "Logo del Club", class: "form-label", style: "font-size: 0.9rem; margin-bottom: 0.25rem;" %>
+            <%= file_field_tag :club_logo, class: "form-control form-control-sm input-compact", style: "border-radius: 8px; height: 34px; width: 100%;" %>
+          </div>
+        </div>
+
+        <!-- Columna derecha: datos del usuario -->
+        <div class="col-md-6" id="usuario_fields" style="margin: 0 auto;">
+          <h5 class="text-white mb-3" style="font-size: 1.1rem;">Información del Usuario</h5>
+
+          <%# -- Campos usuario -- %>
+          <% [:nombre, :email, :telefono, :categoria].each do |field| %>
+            <div class="mb-3">
+              <%= f.label field, field.to_s.humanize, class: "form-label", style: "font-size: 0.9rem; margin-bottom: 0.25rem; width: 100%;" %>
+              <% input_type = (field == :email) ? :email_field : :text_field %>
+              <%= f.send(input_type, field, class: "form-control form-control-sm input-compact", style: "border-radius: 8px; height: 34px; width: 100%;") %>
+            </div>
+          <% end %>
+
+          <div class="mb-3">
+            <%= f.label :foto, "Foto de Perfil", class: "form-label", style: "font-size: 0.9rem; margin-bottom: 0.25rem;" %>
+            <%= f.file_field :foto, class: "form-control form-control-sm input-compact", style: "border-radius: 8px; height: 34px; width: 100%;" %>
+          </div>
+
+          <% [:password, :password_confirmation].each do |field| %>
+            <div class="mb-3">
+              <%= f.label field, field.to_s.humanize.gsub('_', ' '), class: "form-label", style: "font-size: 0.9rem; margin-bottom: 0.25rem; width: 100%;" %>
+              <%= f.password_field field, class: "form-control form-control-sm input-compact", style: "border-radius: 8px; height: 34px; width: 100%;" %>
+            </div>
+          <% end %>
+        </div>
       </div>
 
-      <div class="mb-3">
-        <%= f.label :telefono, class: "form-label" %>
-        <%= f.text_field :telefono, class: "form-control", style: "border-radius: 10px;" %>
-      </div>
-
-      <div class="mb-3">
-        <%= f.label :categoria, class: "form-label" %>
-        <%= f.text_field :categoria, class: "form-control", style: "border-radius: 10px;" %>
-      </div>
-
-      <div class="mb-3">
-        <%= f.label :password, class: "form-label" %>
-        <%= f.password_field :password, class: "form-control", style: "border-radius: 10px;" %>
-      </div>
-
-      <div class="mb-4">
-        <%= f.label :password_confirmation, class: "form-label" %>
-        <%= f.password_field :password_confirmation, class: "form-control", style: "border-radius: 10px;" %>
-      </div>
-
-      <div class="d-grid mb-3">
-        <%= f.submit "Registrarse", class: "btn btn-warning fw-bold", style: "border-radius: 10px;" %>
+      <!-- Botón de registro -->
+      <div class="d-grid mt-3" style="max-width: 400px; margin: 0 auto; display: none;" id="submit_button_container">
+        <%= f.submit "Registrarse", class: "btn btn-warning fw-bold btn-sm", style: "border-radius: 8px; padding: 0.4rem 0;" %>
       </div>
     <% end %>
 
-    <div class="text-center mt-3">
+    <div class="text-center mt-2" style="font-size: 0.85rem;">
       <%= render "devise/shared/links" %>
     </div>
   </div>
 </section>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const tipoSelect = document.getElementById("tipo_usuario_select");
+    const clubFields = document.getElementById("club_fields");
+    const usuarioFields = document.getElementById("usuario_fields");
+    const formColumns = document.getElementById("form_columns");
+    const submitButton = document.getElementById("submit_button_container");
+
+    function toggleFields() {
+      if (tipoSelect.value === "club") {
+        formColumns.style.display = "flex";
+        clubFields.style.display = "block";
+        usuarioFields.classList.remove("col-md-12");
+        usuarioFields.classList.add("col-md-6");
+        usuarioFields.style.margin = "0";
+        submitButton.style.display = "block";
+      } else if (tipoSelect.value === "jugador") {
+        formColumns.style.display = "block";
+        clubFields.style.display = "none";
+        usuarioFields.classList.remove("col-md-6");
+        usuarioFields.classList.add("col-md-12");
+        usuarioFields.style.margin = "0 auto"; // centrar
+        submitButton.style.display = "block";
+      } else {
+        // Nada seleccionado: ocultar todo excepto selector
+        formColumns.style.display = "none";
+        submitButton.style.display = "none";
+      }
+    }
+
+    tipoSelect.addEventListener("change", toggleFields);
+    toggleFields(); // inicial
+  });
+</script>
+
+<style>
+  /* Clase para inputs más compactos y alineados */
+  .input-compact {
+    font-size: 0.85rem !important;
+    padding: 4px 8px !important;
+  }
+</style>
