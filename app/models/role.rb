@@ -1,4 +1,6 @@
 class Role < ApplicationRecord
   belongs_to :user
-  belongs_to :club, optional: true
+  belongs_to :club
+
+  validates :nombre, presence: true
 end

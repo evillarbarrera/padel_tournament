@@ -1,22 +1,61 @@
-<h1>Editar Perfil</h1>
+<section class="vh-100 d-flex justify-content-center align-items-center" style="font-family: 'Oswald', sans-serif; background-image: url('https://images.unsplash.com/photo-1526888935184-a82d2a4b7e67?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cGFkZWwlMjB0ZW5uaXN8ZW58MHx8MHx8fDA%3D'); background-size: cover; background-position: center; padding: 2rem;">
+  <div class="container" style="max-width: 900px;">
+    <h1 class="text-center mb-4 text-white">Editar Perfil</h1>
 
-<%= form_with(model: @user, url: user_path, method: :patch, local: true) do |form| %>
-  <div>
-    <%= form.label :nombre %><br>
-    <%= form.text_field :nombre %>
-  </div>
+    <%= form_with model: @user, local: true do |f| %>
+      <div class="row g-4 bg-white rounded p-4 shadow">
 
-  <div>
-    <%= form.label :telefono %><br>
-    <%= form.text_field :telefono %>
-  </div>
+        <% if @user.role&.nombre == 'administrador' && @user.role.club.present? %>
+          <!-- Club -->
+          <div class="col-md-6">
+            <h3 class="text-primary">Información del Club</h3>
+            <%= fields_for :club, @user.role.club do |c| %>
+              <div class="mb-3">
+                <%= c.label :nombre, "Nombre del Club", class: "form-label" %>
+                <%= c.text_field :nombre, class: "form-control" %>
+              </div>
+              <div class="mb-3">
+                <%= c.label :direccion, class: "form-label" %>
+                <%= c.text_field :direccion, class: "form-control" %>
+              </div>
+              <div class="mb-3">
+                <%= c.label :telefono, class: "form-label" %>
+                <%= c.text_field :telefono, class: "form-control" %>
+              </div>
+              <div class="mb-3">
+                <%= c.label :email, class: "form-label" %>
+                <%= c.email_field :email, class: "form-control" %>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
 
-  <div>
-    <%= form.label :categoria %><br>
-    <%= form.text_field :categoria %>
-  </div>
+        <!-- Usuario -->
+        <div class="col-md-6">
+          <h3 class="text-primary">Información del Usuario</h3>
+          <div class="mb-3">
+            <%= f.label :nombre, class: "form-label" %>
+            <%= f.text_field :nombre, class: "form-control" %>
+          </div>
+          <div class="mb-3">
+            <%= f.label :email, class: "form-label" %>
+            <%= f.email_field :email, class: "form-control" %>
+          </div>
+          <div class="mb-3">
+            <%= f.label :telefono, class: "form-label" %>
+            <%= f.text_field :telefono, class: "form-control" %>
+          </div>
+          <div class="mb-3">
+            <%= f.label :categoria, class: "form-label" %>
+            <%= f.select :categoria, ["Primera", "Segunda", "Tercera", "Cuarta"], prompt: "Selecciona una categoría", class: "form-control" %>
+          </div>
+        </div>
 
-  <div>
-    <%= form.submit "Guardar", class: "btn btn-success" %>
+        <!-- Botón -->
+        <div class="col-12 text-center mt-3">
+          <%= f.submit "Guardar Cambios", class: "btn btn-warning px-4 py-2 fw-bold rounded-pill shadow-sm" %>
+        </div>
+      </div>
+    <% end %>
   </div>
-<% end %>
+</section>
