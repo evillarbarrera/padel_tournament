@@ -1,0 +1,31 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  club: one
+  categoria: one
+  tipoinscripcion: one
+  nombre: MyString
+  descripcion: MyText
+  foto: MyString
+  normativo: MyText
+  tipo: MyString
+  fecha_inicio: 2025-05-27
+  fecha_termino: 2025-05-27
+  cupos_maximos: 1
+  estado: MyString
+  reglas: MyText
+
+two:
+  club: two
+  categoria: two
+  tipoinscripcion: two
+  nombre: MyString
+  descripcion: MyText
+  foto: MyString
+  normativo: MyText
+  tipo: MyString
+  fecha_inicio: 2025-05-27
+  fecha_termino: 2025-05-27
+  cupos_maximos: 1
+  estado: MyString
+  reglas: MyText

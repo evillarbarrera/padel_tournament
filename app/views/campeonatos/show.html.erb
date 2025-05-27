@@ -1,0 +1,10 @@
+<p style="color: green"><%= notice %></p>
+
+<%= render @campeonato %>
+
+<div>
+  <%= link_to "Edit this campeonato", edit_campeonato_path(@campeonato) %> |
+  <%= link_to "Back to campeonatos", campeonatos_path %>
+
+  <%= button_to "Destroy this campeonato", @campeonato, method: :delete %>
+</div>

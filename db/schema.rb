@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_05_23_182151) do
+ActiveRecord::Schema[8.0].define(version: 2025_05_27_134908) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -39,6 +39,33 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_23_182151) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "campeonatos", force: :cascade do |t|
+    t.integer "club_id", null: false
+    t.integer "categoria_id", null: false
+    t.integer "tipoinscripcion_id", null: false
+    t.string "nombre"
+    t.text "descripcion"
+    t.string "foto"
+    t.text "normativo"
+    t.string "tipo"
+    t.date "fecha_inicio"
+    t.date "fecha_termino"
+    t.integer "cupos_maximos"
+    t.string "estado"
+    t.text "reglas"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["categoria_id"], name: "index_campeonatos_on_categoria_id"
+    t.index ["club_id"], name: "index_campeonatos_on_club_id"
+    t.index ["tipoinscripcion_id"], name: "index_campeonatos_on_tipoinscripcion_id"
+  end
+
+  create_table "categoria", force: :cascade do |t|
+    t.string "nombre"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "clubs", force: :cascade do |t|
     t.string "nombre"
     t.string "direccion"
@@ -62,6 +89,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_23_182151) do
     t.index ["user_id"], name: "index_roles_on_user_id"
   end
 
+  create_table "tipo_inscripcions", force: :cascade do |t|
+    t.string "nombre"
+    t.integer "monto"
+    t.date "fecha_limite_pago"
+    t.text "beneficios"
+    t.integer "campeonato_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["campeonato_id"], name: "index_tipo_inscripcions_on_campeonato_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -81,6 +119,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_23_182151) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "campeonatos", "categoria", column: "categoria_id"
+  add_foreign_key "campeonatos", "clubs"
+  add_foreign_key "campeonatos", "tipoinscripcions"
   add_foreign_key "roles", "clubs"
   add_foreign_key "roles", "users"
+  add_foreign_key "tipo_inscripcions", "campeonatos"
 end

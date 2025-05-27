@@ -1,0 +1,16 @@
+<% content_for :title, "Nuevo Campeonato" %>
+
+<div class="container mt-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 text-primary">Crear Nuevo Campeonato</h1>
+    <%= link_to "← Volver a Campeonatos", campeonatos_path, class: "btn btn-outline-secondary" %>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h5 class="card-title mb-4 text-muted">Información del Campeonato</h5>
+
+      <%= render 'form', tipo: 'campeonato', campeonato: @campeonato %>
+    </div>
+  </div>
+</div>

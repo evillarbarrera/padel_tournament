@@ -1,0 +1,12 @@
+<% content_for :title, "Editing campeonato" %>
+
+<h1>Editing campeonato</h1>
+
+<%= render "form", campeonato: @campeonato %>
+
+<br>
+
+<div>
+  <%= link_to "Show this campeonato", @campeonato %> |
+  <%= link_to "Back to campeonatos", campeonatos_path %>
+</div>

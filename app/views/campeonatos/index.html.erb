@@ -1,0 +1,26 @@
+<!-- app/views/campeonatos/index.html.erb -->
+<h1 class="mb-4">Listado de Campeonatos</h1>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Nombre</th>
+      <th>Fecha</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @campeonatos.each do |campeonato| %>
+      <tr>
+        <td><%= campeonato.nombre %></td>
+        <td><%= campeonato.fecha %></td>
+        <td>
+          <%= link_to "Ver", campeonato_path(campeonato), class: "btn btn-sm btn-outline-primary" %>
+          <%= link_to "Editar", edit_campeonato_path(campeonato), class: "btn btn-sm btn-outline-secondary" %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%= link_to "Nuevo Campeonato", new_campeonato_path, class: "btn btn-success mt-3" %>

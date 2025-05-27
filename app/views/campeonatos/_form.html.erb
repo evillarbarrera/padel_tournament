@@ -1,0 +1,84 @@
+<%= form_with(model: campeonato, local: true, html: { class: "needs-validation" }) do |form| %>
+  <% if campeonato.errors.any? %>
+    <div class="alert alert-danger">
+      <h5><%= pluralize(campeonato.errors.count, "error") %> impidieron guardar el campeonato:</h5>
+      <ul>
+        <% campeonato.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <%= form.label :club_id, "Club", class: "form-label" %>
+      <%= form.collection_select :club_id, Club.all, :id, :nombre, {}, class: "form-select" %>
+    </div>
+    <div class="col-md-6">
+      <%= form.label :categoria, "Categoría", class: "form-label" %>
+      <%= form.text_field :categoria, class: "form-control" %>
+    </div>
+  </div>
+
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <%= form.label :tipoinscripcion, "Tipo de Inscripción", class: "form-label" %>
+      <%= form.select :tipoinscripcion, ['Individual', 'Parejas'], {}, class: "form-select" %>
+    </div>
+    <div class="col-md-6">
+      <%= form.label :nombre, "Nombre", class: "form-label" %>
+      <%= form.text_field :nombre, class: "form-control" %>
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :descripcion, "Descripción", class: "form-label" %>
+    <%= form.text_area :descripcion, rows: 3, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :foto, "Foto", class: "form-label" %>
+    <%= form.file_field :foto, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :normativo, "Documento Normativo", class: "form-label" %>
+    <%= form.file_field :normativo, class: "form-control" %>
+  </div>
+
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <%= form.label :tipo, "Tipo", class: "form-label" %>
+      <%= form.select :tipo, ['Americano', 'Liga', 'Express'], {}, class: "form-select" %>
+    </div>
+    <div class="col-md-3">
+      <%= form.label :fecha_inicio, "Fecha Inicio", class: "form-label" %>
+      <%= form.date_field :fecha_inicio, class: "form-control" %>
+    </div>
+    <div class="col-md-3">
+      <%= form.label :fecha_termino, "Fecha Término", class: "form-label" %>
+      <%= form.date_field :fecha_termino, class: "form-control" %>
+    </div>
+  </div>
+
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <%= form.label :cupos_maximos, "Cupos Máximos", class: "form-label" %>
+      <%= form.number_field :cupos_maximos, class: "form-control" %>
+    </div>
+    <div class="col-md-6">
+      <%= form.label :estado, "Estado", class: "form-label" %>
+      <%= form.select :estado, ['Pendiente', 'Activo', 'Finalizado'], {}, class: "form-select" %>
+    </div>
+  </div>
+
+  <div class="mb-4">
+    <%= form.label :reglas, "Reglas del Campeonato", class: "form-label" %>
+    <%= form.text_area :reglas, rows: 4, class: "form-control" %>
+  </div>
+
+  <div class="text-end">
+    <%= form.submit "Guardar Campeonato", class: "btn btn-primary px-4" %>
+  </div>
+<% end %>
