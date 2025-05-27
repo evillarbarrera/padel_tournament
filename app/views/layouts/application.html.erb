@@ -38,8 +38,6 @@
       <!-- Menú centrado -->
       <ul class="navbar-nav mx-auto mb-2 mb-lg-0 text-center">
         <%= link_to "Home", root_path, class: "nav-link text-dark", "aria-current": "page" %>
-
-        <li class="nav-item"><a class="nav-link text-dark" href="#!">Entrenamientos</a></li>
         <li class="nav-item"><a class="nav-link text-dark" href="#!">Torneos</a></li>
         <li class="nav-item"><a class="nav-link text-dark" href="#!">Galerías</a></li>
         <li class="nav-item"><a class="nav-link text-dark" href="#!">Contacto</a></li>
@@ -49,7 +47,12 @@
       <div class="d-flex align-items-center gap-2">
         <% if user_signed_in? %>
           <span class="text-dark me-2">Hola, <%= current_user.nombre.presence || current_user.email %></span>
-          <%= link_to 'Mi Perfil', user_path(current_user), class: "btn btn-outline-primary btn-sm" %>
+          <% if current_user.club? %>
+            <%= link_to 'Mi Perfil', admin_dashboard_path, class: "btn btn-outline-primary btn-sm" %>
+          <% else %>
+            <%= link_to 'Mi Perfil', user_path(current_user), class: "btn btn-outline-primary btn-sm" %>
+          <% end %>
+          
           <%= link_to "Cerrar sesión", destroy_user_session_path, method: :delete, class: "btn btn-outline-secondary btn-sm" %>
         <% else %>
           <%= link_to "Iniciar sesión", new_user_session_path, class: "btn btn-outline-primary btn-sm" %>

@@ -1,0 +1,68 @@
+<div class="d-flex" style="min-height: 100vh; background-color: #f7f9fc;">
+
+
+
+  <!-- Contenido principal -->
+  <main class="flex-grow-1 p-4" style="background-color: #f7f9fc;">
+
+    <h1 class="mb-4 fw-bold text-gray-800">Panel de Administración</h1>
+
+    <div class="row g-4">
+
+      <!-- Card ejemplo 1 -->
+      <div class="col-md-4">
+        <div class="card shadow-sm border-0 rounded-4">
+          <div class="card-body">
+            <h5 class="card-title text-primary fw-bold">Torneos activos</h5>
+            <p class="display-5 fw-bold text-primary">8</p>
+            <a href="#" class="btn btn-outline-primary w-100 fw-semibold">Ver torneos</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card ejemplo 2 -->
+      <div class="col-md-4">
+        <div class="card shadow-sm border-0 rounded-4">
+          <div class="card-body">
+            <h5 class="card-title text-success fw-bold">Jugadores inscritos</h5>
+            <p class="display-5 fw-bold text-success">124</p>
+            <a href="#" class="btn btn-outline-success w-100 fw-semibold">Ver jugadores</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card ejemplo 3 -->
+      <div class="col-md-4">
+        <div class="card shadow-sm border-0 rounded-4">
+          <div class="card-body">
+            <h5 class="card-title text-warning fw-bold">Próximos partidos</h5>
+            <p class="display-5 fw-bold text-warning">5</p>
+            <a href="#" class="btn btn-outline-warning w-100 fw-semibold">Ver calendario</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <hr class="my-5">
+
+    <!-- Resumen Club -->
+    <div class="card shadow-sm border-0 rounded-4 p-4" style="background-color: white;">
+      <h3 class="fw-bold text-primary mb-3">Resumen del Club</h3>
+      <p><strong>Nombre:</strong> <%= current_user.role&.club&.nombre || "Club no asignado" %></p>
+      <p><strong>Email del Club:</strong> <%= current_user.role&.club&.email || "No disponible" %></p>
+      <p><strong>Dirección:</strong> <%= current_user.role&.club&.direccion || "No disponible" %></p>
+    </div>
+
+  </main>
+</div>
+
+<style>
+  .hover-bg-blue:hover {
+    background-color: #2563eb !important;
+    text-decoration: none !important;
+  }
+  .text-gray-800 {
+    color: #1f2937;
+  }
+</style>
