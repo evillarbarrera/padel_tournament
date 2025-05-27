@@ -17,5 +17,12 @@ test:
   database: db/test.sqlite3
 
 production:
-  <<: *postgres_defaults
-  url: <%= ENV['DATABASE_URL'] %>
+  primary:
+    adapter: postgresql
+    url: <%= ENV['DATABASE_URL'] %>
+    pool: 5
+
+  cable:
+    adapter: postgresql
+    url: <%= ENV['DATABASE_URL'] %>
+    pool: 5
