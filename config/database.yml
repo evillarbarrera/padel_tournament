@@ -1,30 +1,15 @@
-sqlite_defaults: &sqlite_defaults
-  adapter: sqlite3
-  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  timeout: 5000
-
-postgres_defaults: &postgres_defaults
+default: &default
   adapter: postgresql
   encoding: unicode
-  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  pool: 5
 
 development:
-  <<: *sqlite_defaults
-  database: db/development.sqlite3  # Cambio storage/ por db/, que es más estándar en Rails
+  <<: *default
+  database: padel_development
 
+test:
+  <<: *default
+  database: padel_test
 
 production:
-  <<: *postgres_defaults
-  database: <%= ENV['DB_NAME'] %>
-  username: <%= ENV['DB_USER'] %>
-  password: <%= ENV['DB_PASSWORD'] %>
-  host: <%= ENV['DB_HOST'] %>
-  port: 5432
-
-cable:
-  <<: *postgres_defaults
-  database: <%= ENV["CABLE_DB_NAME"] || "myapp_production_cable" %>
-  username: <%= ENV["CABLE_DB_USER"] || ENV["DB_USER"] %>
-  password: <%= ENV["CABLE_DB_PASSWORD"] || ENV["DB_PASSWORD"] %>
-  host: <%= ENV["CABLE_DB_HOST"] || ENV["DB_HOST"] %>
-  port: 5432
+  url: <%= ENV['DATABASE_URL'] %>
