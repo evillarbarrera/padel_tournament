@@ -42,7 +42,7 @@ gem "thruster", require: false
 # gem "image_processing", "~> 1.2"
 
 gem 'devise'
-
+ruby "3.3.0"
 gem 'cocoon'
 
 group :development, :test do
