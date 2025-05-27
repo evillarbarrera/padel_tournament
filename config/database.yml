@@ -10,11 +10,11 @@ postgres_defaults: &postgres_defaults
 
 development:
   <<: *sqlite_defaults
-  database: storage/development.sqlite3
+  database: db/development.sqlite3  # Cambio storage/ por db/, que es más estándar en Rails
 
 test:
   <<: *sqlite_defaults
-  database: storage/test.sqlite3
+  database: db/test.sqlite3
 
 production:
   <<: *postgres_defaults
