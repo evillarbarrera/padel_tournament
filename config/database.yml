@@ -13,3 +13,9 @@ test:
 
 production:
   url: <%= ENV['DATABASE_URL'] %>
+  pool: 5
+  timeout: 5000
+
+cable:
+  <<: *default
+  url: <%= ENV['CABLE_DATABASE_URL'] || ENV['DATABASE_URL'] %>
