@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_05_27_134908) do
+ActiveRecord::Schema[8.0].define(version: 2025_05_27_171159) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -42,7 +42,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_27_134908) do
   create_table "campeonatos", force: :cascade do |t|
     t.integer "club_id", null: false
     t.integer "categoria_id", null: false
-    t.integer "tipoinscripcion_id", null: false
     t.string "nombre"
     t.text "descripcion"
     t.string "foto"
@@ -57,7 +56,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_27_134908) do
     t.datetime "updated_at", null: false
     t.index ["categoria_id"], name: "index_campeonatos_on_categoria_id"
     t.index ["club_id"], name: "index_campeonatos_on_club_id"
-    t.index ["tipoinscripcion_id"], name: "index_campeonatos_on_tipoinscripcion_id"
   end
 
   create_table "categoria", force: :cascade do |t|
@@ -121,7 +119,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_27_134908) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "campeonatos", "categoria", column: "categoria_id"
   add_foreign_key "campeonatos", "clubs"
-  add_foreign_key "campeonatos", "tipoinscripcions"
   add_foreign_key "roles", "clubs"
   add_foreign_key "roles", "users"
   add_foreign_key "tipo_inscripcions", "campeonatos"
