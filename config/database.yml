@@ -12,9 +12,14 @@ test:
   database: padel_test
 
 production:
-  url: <%= ENV['DATABASE_URL'] %>
+  adapter: postgresql
+  encoding: unicode
+  database: de0bqup6hn6ns
+  username: u920s7epto2rvr
+  password: pc7a31a81f8c184b5b5ae2fb3aa28083e94e555a6aa348647bfb25629a75ac2ff
+  host: c7s7ncbk19n97r.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com
+  port: 5432
   pool: 5
-  timeout: 5000
 
 cable:
   <<: *default
