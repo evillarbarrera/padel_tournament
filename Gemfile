@@ -56,7 +56,7 @@ group :development, :test do
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
 
-  gem "cloudinary"
+  gem 'cloudinary', '~> 1.19.0'
   gem "activestorage-cloudinary-service"
 end
 
