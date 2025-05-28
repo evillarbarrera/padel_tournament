@@ -57,6 +57,7 @@ group :development, :test do
   gem "rubocop-rails-omakase", require: false
 
   gem "cloudinary"
+  gem "activestorage-cloudinary-service"
 end
 
 group :development do
