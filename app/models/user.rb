@@ -12,7 +12,14 @@ class User < ApplicationRecord
     role&.nombre == "club" || role&.nombre == "administrador"
   end
 
+  # Deshabilitar purga automática
+  after_save :skip_auto_purge_foto
 
+  private
 
+  def skip_auto_purge_foto
+    # Esto evita que se intente purgar el archivo anterior automáticamente
+    foto.attachment&.purge_later if foto.attached? && foto.attachment.blob.attachments.many?
+  end
 
 end

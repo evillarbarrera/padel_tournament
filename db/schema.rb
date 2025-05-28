@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_05_28_174714) do
+ActiveRecord::Schema[8.0].define(version: 2025_05_28_175549) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -96,8 +96,20 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_28_174714) do
     t.datetime "failed_at", precision: nil
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "active_job_id"
+    t.index ["active_job_id"], name: "index_solid_queue_jobs_on_active_job_id"
     t.index ["queue_name"], name: "index_solid_queue_jobs_on_queue_name"
     t.index ["run_at"], name: "index_solid_queue_jobs_on_run_at"
+  end
+
+  create_table "solid_queue_processes", force: :cascade do |t|
+    t.string "pid"
+    t.string "hostname"
+    t.string "worker_name"
+    t.datetime "started_at"
+    t.datetime "finished_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "tipo_inscripcions", force: :cascade do |t|

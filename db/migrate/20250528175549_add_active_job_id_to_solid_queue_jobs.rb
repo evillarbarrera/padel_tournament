@@ -1,6 +1,6 @@
-class AddMissingColumnsToSolidQueueJobs < ActiveRecord::Migration[7.0]
+class AddActiveJobIdToSolidQueueJobs < ActiveRecord::Migration[7.1]
   def change
     add_column :solid_queue_jobs, :active_job_id, :string
-    add_column :solid_queue_jobs, :priority, :integer, default: 0
+    add_index :solid_queue_jobs, :active_job_id
   end
 end

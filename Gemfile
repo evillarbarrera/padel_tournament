@@ -26,7 +26,7 @@ gem "tzinfo-data", platforms: %i[ mingw mswin x64_mingw jruby ]
 
 # Use the database-backed adapters for Rails.cache, Active Job, and Action Cable
 gem "solid_cache"
-gem "solid_queue"
+gem "solid_queue", "~> 0.2"
 gem "solid_cable"
 
 # Reduces boot times through caching; required in config/boot.rb
@@ -46,7 +46,7 @@ ruby "3.3.0"
 gem 'cocoon'
 gem 'cloudinary', '~> 1.19.0'
 gem "activestorage-cloudinary-service"
-
+gem 'sidekiq'
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri mswin mingw x64_mingw ], require: "debug/prelude"
