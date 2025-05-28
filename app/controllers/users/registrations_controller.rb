@@ -19,6 +19,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
             direccion: club_params[:club_direccion],
             telefono: club_params[:club_telefono],
             email: club_params[:club_email]
+
           )
           club.logo.attach(club_params[:club_logo]) if club_params[:club_logo]
 

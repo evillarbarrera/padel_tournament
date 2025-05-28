@@ -184,7 +184,11 @@
   <!-- Sidebar -->
   <aside id="sidebar" aria-label="Sidebar menu">
     <div class="sidebar-header">
-      <img src="https://images.unsplash.com/photo-1521412644187-c49fa049e84d?auto=format&fit=crop&w=300&q=80" alt="Logo Club Pádel" />
+      <% if current_user&.role&.club&.logo&.attached? %>
+        <div class="text-center mb-4">
+          <%= image_tag url_for(current_user.role.club.logo), alt: "Logo del club", class: "rounded", width: 150 %>
+        </div>
+      <% end %>
       <h4>Club Pádel Central</h4>
     </div>
     <nav class="nav flex-column">

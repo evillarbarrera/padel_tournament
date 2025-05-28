@@ -13,7 +13,9 @@ url('https://images.unsplash.com/photo-1526888935184-a82d2a4b7e67?fm=jpg&q=60&w=
       <p><strong>Email:</strong> <%= @user.role.club.email %></p>
       <hr class="my-4" />
     <% end %>
-
+    <div class="text-center mb-4">
+      <%= image_tag(url_for(@user.foto), alt: "Foto de perfil", class: "rounded-circle", width: 150, height: 150) if @user.foto.attached? %>
+    </div>
     <h3 class="mb-3 text-secondary">Información Personal</h3>
     <p><strong>Nombre:</strong> <%= @user.nombre %></p>
     <p><strong>Email:</strong> <%= @user.email %></p>
