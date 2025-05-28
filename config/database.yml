@@ -19,3 +19,7 @@ production:
 cable:
   <<: *postgres_defaults
   url: <%= ENV['CABLE_DATABASE_URL'] || ENV['DATABASE_URL'] %>
+
+queue:
+  <<: *postgres_defaults
+  url: <%= ENV['DATABASE_URL'] %>
