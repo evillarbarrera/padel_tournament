@@ -40,6 +40,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
       else
         # Si falla guardar usuario, lanza excepción para rollback
+        Rails.logger.debug "Errores: #{resource.errors.full_messages}"
         raise ActiveRecord::Rollback
       end
     end
