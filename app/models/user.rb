@@ -12,4 +12,11 @@ class User < ApplicationRecord
     role&.nombre == "club" || role&.nombre == "administrador"
   end
 
+  def user_params
+  params.require(:user).permit(
+    :nombre, :email, :telefono, :categoria, :password, :password_confirmation,
+    role_attributes: [:nombre, club_attributes: [:nombre, :direccion, :telefono, :email]]
+  )
+end
+
 end

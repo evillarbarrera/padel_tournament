@@ -6,6 +6,17 @@
     <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { multipart: true }) do |f| %>
       <%= devise_error_messages! %>
 
+      <% if resource.errors.any? %>
+        <div class="alert alert-danger" style="background-color: rgba(255, 0, 0, 0.7); border-radius: 8px; padding: 10px; margin-bottom: 1rem;">
+          <h4 class="text-white">Se encontraron los siguientes errores:</h4>
+          <ul class="mb-0 text-white">
+            <% resource.errors.full_messages.each do |msg| %>
+              <li><%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
       <!-- Tipo de usuario -->
       <div class="mb-4" style="max-width: 400px; margin: 0 auto;">
         <%= label_tag :tipo_usuario, "¿Qué tipo de cuenta deseas crear?", class: "form-label fw-semibold", style: "font-size: 1.1rem; margin-bottom: 0.4rem; display: block;" %>
