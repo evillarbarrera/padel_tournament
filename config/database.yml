@@ -10,23 +10,12 @@ postgres_defaults: &postgres_defaults
 
 development:
   <<: *sqlite_defaults
-  database: db/development.sqlite3  # Cambio storage/ por db/, que es más estándar en Rails
-
+  database: db/development.sqlite3
 
 production:
   <<: *postgres_defaults
-  adapter: postgresql
-  encoding: unicode
-  pool: 5
-  database: <%= ENV["DATABASE_NAME"] %>
-  username: <%= ENV["DATABASE_USER"] %>
-  password: <%= ENV["DATABASE_PASSWORD"] %>
-  host: <%= ENV["DATABASE_HOST"] %>
+  url: <%= ENV['DATABASE_URL'] %>
 
 cable:
   <<: *postgres_defaults
-  database: <%= ENV["CABLE_DB_NAME"] || "myapp_production_cable" %>
-  username: <%= ENV["CABLE_DB_USER"] || ENV["DB_USER"] %>
-  password: <%= ENV["CABLE_DB_PASSWORD"] || ENV["DB_PASSWORD"] %>
-  host: <%= ENV["CABLE_DB_HOST"] || ENV["DB_HOST"] %>
-  port: 5432
+  url: <%= ENV['CABLE_DATABASE_URL'] %>
