@@ -26,8 +26,10 @@ gem "tzinfo-data", platforms: %i[ mingw mswin x64_mingw jruby ]
 
 # Use the database-backed adapters for Rails.cache, Active Job, and Action Cable
 gem "solid_cache"
-gem "solid_queue", "~> 0.2"
+gem "solid_queue", "~> 0.3"
 gem "solid_cable"
+
+gem 'sidekiq'
 
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false
