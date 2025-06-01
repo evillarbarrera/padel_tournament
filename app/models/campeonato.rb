@@ -2,6 +2,8 @@ class Campeonato < ApplicationRecord
   belongs_to :club
   belongs_to :categoria
   has_many :tipo_inscripcions, dependent: :destroy
+  has_many :tipo_inscripcions, dependent: :destroy
+  accepts_nested_attributes_for :tipo_inscripcions, allow_destroy: true 
 
   validates :nombre, presence: true
   validates :fecha_inicio, presence: true

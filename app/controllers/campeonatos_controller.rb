@@ -12,9 +12,10 @@ class CampeonatosController < ApplicationController
   end
 
   # GET /campeonatos/new
-  def new
-    @campeonato = Campeonato.new
-  end
+def new
+  @campeonato = Campeonato.new
+  @campeonato.tipo_inscripcions.build  # Para que aparezca al menos uno por defecto
+end
 
   # GET /campeonatos/1/edit
   def edit
