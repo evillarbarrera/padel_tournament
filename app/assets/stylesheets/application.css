@@ -8,5 +8,6 @@
  *
  * Consider organizing styles into separate files for maintainability.
  */
-
-@import "navbar.css";
+/*
+ *= require font-awesome
+ */

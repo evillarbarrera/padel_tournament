@@ -49,6 +49,7 @@ gem 'cocoon'
 gem 'cloudinary', '~> 1.19.0'
 gem "activestorage-cloudinary-service"
 gem 'sidekiq'
+gem 'font-awesome-rails'
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri mswin mingw x64_mingw ], require: "debug/prelude"
