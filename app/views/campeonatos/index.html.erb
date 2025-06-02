@@ -79,9 +79,7 @@
             <span class="<%= estado_class %>"><%= campeonato.estado.capitalize %></span>
           </td>
           <td style="text-align: center;">
-            <%= link_to  campeonato_path(campeonato)  do %>
-              <i class="fa fa-calendar" style="font-size: 1.5em; color: #0d6efd;"></i>
-            <% end %>
+            <i class="bi bi-calendar-week"></i>
           </td>
           <td>
             <%= link_to "Ver", campeonato_path(campeonato), class: "btn btn-sm btn-outline-primary" %>
