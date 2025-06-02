@@ -41,7 +41,6 @@
       <% @campeonatos.each do |campeonato| %>
         <tr>
           <td><%= campeonato.nombre %></td>
-         <td><%= campeonato.nombre %></td>
           <td>
             <% tipo_class = case campeonato.tipo&.downcase %>
               <% when 'regional' then 'badge bg-primary' %>
