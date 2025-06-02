@@ -1,3 +1,4 @@
+
 <%= form_with(model: @campeonato, local: true) do |form| %>
   <ul class="nav nav-tabs mb-4" id="campeonatoTabs" role="tablist">
     <li class="nav-item" role="presentation">
@@ -29,23 +30,31 @@
           <input type="text" class="form-control" value="<%= current_user.club.nombre %>" disabled>
         </div>
 
-        <div class="col-md-4">
-          <%= form.label :nombre, "Nombre del campeonato", class: "form-label" %>
-          <%= form.text_field :nombre, class: "form-control form-control-sm" %> <!-- input más pequeño -->
-        </div>
-        <div class="col-md-2">
-          <%= form.label :fecha_inicio, "Fecha inicio", class: "form-label" %>
-          <%= form.date_field :fecha_inicio, class: "form-control form-control-sm" %> <!-- input fecha más pequeño -->
-        </div>
-        <div class="col-md-2">
-          <%= form.label :fecha_termino, "Fecha término", class: "form-label" %>
-          <%= form.date_field :fecha_termino, class: "form-control form-control-sm" %> <!-- input fecha más pequeño -->
-        </div>
-        <div class="col-md-2">
-          <%= form.label :cupo_maximo, "Cupo máximo", class: "form-label" %>
-          <%= form.number_field :cupo_maximo, class: "form-control form-control-sm", min: 1 %> <!-- input número pequeño -->
+        <div class="col-md-6 mb-3">
+          <%= form.label :nombre %>
+          <%= form.text_field :nombre, class: "form-control" %>
         </div>
 
+        <div class="col-md-2">
+          <%= form.label :tipo, "Tipo de Campeonato" %>
+          <%= form.select :tipo, ['Campeonato', 'Liga', 'Americano'], {}, class: "form-control" %>
+        </div>
+
+
+        <div class="col-md-2">
+          <%= form.label :fecha_inicio %>
+          <%= form.date_field :fecha_inicio, class: "form-control" %>
+        </div>
+
+        <div class="col-md-2">
+          <%= form.label :fecha_termino %>
+          <%= form.date_field :fecha_termino, class: "form-control" %>
+        </div>
+
+        <div class="col-md-2">
+          <%= form.label :cupos_maximos, "Cupos Máximos" %>
+          <%= form.number_field :cupos_maximos, class: "form-control" %>
+        </div>
 
         <div class="col-md-2">
           <%= form.label :estado %>

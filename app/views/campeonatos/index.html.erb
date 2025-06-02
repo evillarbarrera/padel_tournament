@@ -41,14 +41,15 @@
       <% @campeonatos.each do |campeonato| %>
         <tr>
           <td><%= campeonato.nombre %></td>
+         <td><%= campeonato.nombre %></td>
           <td>
-            <% tipo_class = case campeonato.tipo.downcase %>
+            <% tipo_class = case campeonato.tipo&.downcase %>
               <% when 'regional' then 'badge bg-primary' %>
               <% when 'nacional' then 'badge bg-success' %>
               <% when 'internacional' then 'badge bg-warning text-dark' %>
               <% else 'badge bg-secondary' %>
             <% end %>
-            <span class="<%= tipo_class %>"><%= campeonato.tipo.capitalize %></span>
+            <span class="<%= tipo_class %>"><%= campeonato.tipo || 'No definido' %></span>
           </td>
           <td>
             <% hoy = Date.current %>
