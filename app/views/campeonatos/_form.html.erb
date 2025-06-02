@@ -1,150 +1,202 @@
 <%= form_with(model: @campeonato, local: true) do |form| %>
   <ul class="nav nav-tabs mb-4" id="campeonatoTabs" role="tablist">
     <li class="nav-item" role="presentation">
-      <button class="nav-link active text-white bg-primary" id="datos-basicos-tab" data-bs-toggle="tab" data-bs-target="#datos-basicos" type="button" role="tab">
-        Datos Básicos
-      </button>
+      <a class="nav-link active" id="datos-tab" data-bs-toggle="tab" href="#datos" role="tab" aria-controls="datos" aria-selected="true">Datos Básicos</a>
     </li>
     <li class="nav-item" role="presentation">
-      <button class="nav-link text-white bg-success" id="tipo-inscripcion-tab" data-bs-toggle="tab" data-bs-target="#tipo-inscripcion" type="button" role="tab">
-        Tipos de Inscripción
-      </button>
+      <a class="nav-link" id="tipos-tab" data-bs-toggle="tab" href="#tipos" role="tab" aria-controls="tipos" aria-selected="false">Tipos Inscripción</a>
     </li>
     <li class="nav-item" role="presentation">
-      <button class="nav-link text-white bg-info" id="categorias-tab" data-bs-toggle="tab" data-bs-target="#categorias" type="button" role="tab">
-        Categorías
-      </button>
+      <a class="nav-link" id="categorias-tab" data-bs-toggle="tab" href="#categorias" role="tab" aria-controls="categorias" aria-selected="false">Categorías</a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <a class="nav-link" id="jugadores-tab" data-bs-toggle="tab" href="#jugadores" role="tab" aria-controls="jugadores" aria-selected="false">Jugadores</a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <a class="nav-link" id="planificacion-tab" data-bs-toggle="tab" href="#planificacion" role="tab" aria-controls="planificacion" aria-selected="false">Planificación</a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <a class="nav-link" id="partidos-tab" data-bs-toggle="tab" href="#partidos" role="tab" aria-controls="partidos" aria-selected="false">Partidos</a>
     </li>
   </ul>
 
   <div class="tab-content" id="campeonatoTabsContent">
     <!-- Datos Básicos -->
-    <div class="tab-pane fade show active" id="datos-basicos" role="tabpanel">
-      <!-- Aquí van los campos básicos igual que antes... -->
-      <div class="mb-3">
-        <%= form.label :nombre, "Nombre del Campeonato" %>
-        <%= form.text_field :nombre, class: "form-control" %>
+    <div class="tab-pane fade show active" id="datos" role="tabpanel" aria-labelledby="datos-tab">
+      <div class="row">
+        <div class="mb-3 col-12">
+          <label>Club</label>
+          <input type="text" class="form-control" value="<%= current_user.club.nombre %>" disabled>
+        </div>
+
+        <div class="col-md-4">
+          <%= form.label :nombre, "Nombre del campeonato", class: "form-label" %>
+          <%= form.text_field :nombre, class: "form-control form-control-sm" %> <!-- input más pequeño -->
+        </div>
+        <div class="col-md-2">
+          <%= form.label :fecha_inicio, "Fecha inicio", class: "form-label" %>
+          <%= form.date_field :fecha_inicio, class: "form-control form-control-sm" %> <!-- input fecha más pequeño -->
+        </div>
+        <div class="col-md-2">
+          <%= form.label :fecha_termino, "Fecha término", class: "form-label" %>
+          <%= form.date_field :fecha_termino, class: "form-control form-control-sm" %> <!-- input fecha más pequeño -->
+        </div>
+        <div class="col-md-2">
+          <%= form.label :cupo_maximo, "Cupo máximo", class: "form-label" %>
+          <%= form.number_field :cupo_maximo, class: "form-control form-control-sm", min: 1 %> <!-- input número pequeño -->
+        </div>
+
+
+        <div class="col-md-2">
+          <%= form.label :estado %>
+          <%= form.select :estado, ['Pendiente', 'Abierto', 'En curso', 'Finalizado'], {}, class: "form-control" %>
+        </div>
       </div>
+
       <div class="mb-3">
-        <%= form.label :descripcion, "Descripción" %>
+        <%= form.label :descripcion %>
         <%= form.text_area :descripcion, class: "form-control", rows: 3 %>
       </div>
+
       <div class="mb-3">
-        <%= form.label :foto, "Foto URL" %>
-        <%= form.text_field :foto, class: "form-control" %>
-      </div>
-      <div class="mb-3">
-        <%= form.label :normativo, "Normativo" %>
+        <%= form.label :normativo, "Normativa" %>
         <%= form.text_area :normativo, class: "form-control", rows: 3 %>
       </div>
+
       <div class="mb-3">
-        <%= form.label :tipo, "Tipo" %>
-        <%= form.text_field :tipo, class: "form-control" %>
-      </div>
-      <div class="row">
-        <div class="col-md-6 mb-3">
-          <%= form.label :fecha_inicio, "Fecha de Inicio" %>
-          <%= form.date_field :fecha_inicio, class: "form-control" %>
-        </div>
-        <div class="col-md-6 mb-3">
-          <%= form.label :fecha_termino, "Fecha de Término" %>
-          <%= form.date_field :fecha_termino, class: "form-control" %>
-        </div>
-      </div>
-      <div class="mb-3">
-        <%= form.label :cupos_maximos, "Cupos Máximos" %>
-        <%= form.number_field :cupos_maximos, class: "form-control" %>
-      </div>
-      <div class="mb-3">
-        <%= form.label :estado, "Estado" %>
-        <%= form.text_field :estado, class: "form-control" %>
-      </div>
-      <div class="mb-3">
-        <%= form.label :reglas, "Reglas" %>
+        <%= form.label :reglas, "Reglas adicionales" %>
         <%= form.text_area :reglas, class: "form-control", rows: 3 %>
+      </div>
+
+      <div class="mb-3">
+        <%= form.label :foto %>
+        <%= file_field_tag :foto, class: "form-control form-control-sm input-compact", style: "border-radius: 8px; height: 34px; width: 100%;" %>
       </div>
     </div>
 
-    <!-- Tipos de Inscripción -->
-    <div class="tab-pane fade" id="tipo-inscripcion" role="tabpanel">
-      <h5 class="mb-3">Tipos de Inscripción (hasta 4)</h5>
+    <!-- Tipos Inscripción -->
+    <div class="tab-pane fade" id="tipos" role="tabpanel" aria-labelledby="tipos-tab">
       <div id="tipos-inscripcion-container">
-        <!-- El primer tipo de inscripción (por defecto) -->
-        <div class="border rounded p-3 mb-3 tipo-inscripcion-item">
+        <div class="mb-3 border p-3 rounded tipo-inscripcion">
           <h6>Tipo de Inscripción 1</h6>
           <div class="mb-2">
-            <%= form.label :nombre, "Nombre", for: "tipo_inscripcion_0_nombre" %>
-            <%= text_field_tag "campeonato[tipo_inscripcions_attributes][0][nombre]", nil, class: "form-control", id: "tipo_inscripcion_0_nombre" %>
+            <label>Nombre</label>
+            <input type="text" class="form-control" name="tipo_nombre[]">
           </div>
           <div class="mb-2">
-            <%= form.label :monto, "Monto", for: "tipo_inscripcion_0_monto" %>
-            <%= number_field_tag "campeonato[tipo_inscripcions_attributes][0][monto]", nil, class: "form-control", id: "tipo_inscripcion_0_monto" %>
+            <label>Monto</label>
+            <input type="number" class="form-control" name="tipo_monto[]">
           </div>
           <div class="mb-2">
-            <%= form.label :fecha_limite_pago, "Fecha Límite de Pago", for: "tipo_inscripcion_0_fecha_limite_pago" %>
-            <%= date_field_tag "campeonato[tipo_inscripcions_attributes][0][fecha_limite_pago]", nil, class: "form-control", id: "tipo_inscripcion_0_fecha_limite_pago" %>
+            <label>Fecha límite de pago</label>
+            <input type="date" class="form-control" name="tipo_fecha_limite[]">
           </div>
           <div class="mb-2">
-            <%= form.label :beneficios, "Beneficios", for: "tipo_inscripcion_0_beneficios" %>
-            <%= text_area_tag "campeonato[tipo_inscripcions_attributes][0][beneficios]", nil, class: "form-control", rows: 2, id: "tipo_inscripcion_0_beneficios" %>
+            <label>Beneficios</label>
+            <textarea class="form-control" name="tipo_beneficios[]"></textarea>
           </div>
         </div>
       </div>
-
-      <button type="button" id="agregar-tipo-btn" class="btn btn-outline-primary">+ Agregar tipo</button>
+      <button type="button" class="btn btn-outline-primary mt-2" id="agregar-tipo">+ Agregar tipo</button>
     </div>
 
     <!-- Categorías -->
-    <div class="tab-pane fade" id="categorias" role="tabpanel">
-      <h5 class="mb-3">Selecciona Categorías para el Campeonato</h5>
-      <div class="row" style="max-height: 350px; overflow-y: auto;">
-        <div class="col-md-6">
-          <h6 class="text-primary">Categorías Masculinas</h6>
-          <% categorias_masculinas = [
-            "6ta Categoría (Nivel E): Principiante",
-            "5ta Categoría (Nivel D Baja)",
-            "4ta Categoría (Nivel D Alta)",
-            "3ra Categoría (Nivel C)",
-            "2da Categoría (Nivel B)",
-            "1ra Categoría (Nivel A)",
-            "+35 Seniors",
-            "+40 Seniors",
-            "+45 Seniors",
-            "+50 Seniors",
-            "+55 Seniors"
-          ] %>
+    <div class="tab-pane fade" id="categorias" role="tabpanel" aria-labelledby="categorias-tab">
+      <h5 class="mb-3">Selecciona las categorías del campeonato</h5>
+      <div class="mb-4 d-flex flex-wrap gap-2">
+        <button type="button" class="btn btn-outline-primary btn-sm" onclick="toggleSeleccion('masculino-competitiva')">Hombres Competitiva</button>
+        <button type="button" class="btn btn-outline-primary btn-sm" onclick="toggleSeleccion('masculino-senior')">Hombres Senior</button>
+        <button type="button" class="btn btn-outline-danger btn-sm" onclick="toggleSeleccion('femenino-competitiva')">Mujeres Competitiva</button>
+        <button type="button" class="btn btn-outline-danger btn-sm" onclick="toggleSeleccion('femenino-senior')">Mujeres Senior</button>
+        <button type="button" class="btn btn-outline-success btn-sm" onclick="toggleSeleccion('todos')">Hombres + Mujeres</button>
+      </div>
 
-          <% categorias_masculinas.each_with_index do |categoria, i| %>
+      <div class="row">
+        <div class="col-md-6">
+          <h6>Hombres - Competitiva</h6>
+          <% ["6ta", "5ta", "4ta", "3ra", "2da", "1ra"].each do |cat| %>
             <div class="form-check">
-              <%= check_box_tag "campeonato[categorias_seleccionadas][]", categoria, false, id: "categoria_m_#{i}", class: "form-check-input" %>
-              <%= label_tag "categoria_m_#{i}", categoria, class: "form-check-label" %>
+              <input class="form-check-input cat-mas masculino-competitiva" type="checkbox" name="cat_mas[]" id="cat-mas-<%= cat %>" value="<%= cat %>">
+              <label class="form-check-label" for="cat-mas-<%= cat %>"><%= cat %></label>
+            </div>
+          <% end %>
+
+          <h6 class="mt-3">Hombres - Senior</h6>
+          <% ["+35", "+40", "+45", "+50", "+55"].each do |cat| %>
+            <div class="form-check">
+              <input class="form-check-input cat-mas masculino-senior" type="checkbox" name="cat_mas[]" id="cat-mas-<%= cat %>" value="<%= cat %>">
+              <label class="form-check-label" for="cat-mas-<%= cat %>"><%= cat %></label>
             </div>
           <% end %>
         </div>
 
         <div class="col-md-6">
-          <h6 class="text-danger">Categorías Femeninas</h6>
-          <% categorias_femeninas = [
-            "Categoría D (Femenina)",
-            "Categoría C (Femenina)",
-            "Categoría B (Femenina)",
-            "Categoría A (Femenina)",
-            "+30 Seniors (Femenina)",
-            "+35 Seniors (Femenina)",
-            "+40 Seniors (Femenina)",
-            "+45 Seniors (Femenina)",
-            "+50 Seniors (Femenina)",
-            "+55 Seniors (Femenina)"
-          ] %>
-
-          <% categorias_femeninas.each_with_index do |categoria, i| %>
+          <h6>Mujeres - Competitiva</h6>
+          <% ["D", "C", "B", "A"].each do |cat| %>
             <div class="form-check">
-              <%= check_box_tag "campeonato[categorias_seleccionadas][]", categoria, false, id: "categoria_f_#{i}", class: "form-check-input" %>
-              <%= label_tag "categoria_f_#{i}", categoria, class: "form-check-label" %>
+              <input class="form-check-input cat-fem femenino-competitiva" type="checkbox" name="cat_fem[]" id="cat-fem-<%= cat %>" value="<%= cat %>">
+              <label class="form-check-label" for="cat-fem-<%= cat %>"><%= cat %></label>
+            </div>
+          <% end %>
+
+          <h6 class="mt-3">Mujeres - Senior</h6>
+          <% ["+35", "+40", "+45", "+50", "+55"].each do |cat| %>
+            <div class="form-check">
+              <input class="form-check-input cat-fem femenino-senior" type="checkbox" name="cat_fem[]" id="cat-fem-<%= cat %>" value="<%= cat %>">
+              <label class="form-check-label" for="cat-fem-<%= cat %>"><%= cat %></label>
             </div>
           <% end %>
         </div>
       </div>
+    </div>
+
+    <!-- Jugadores -->
+    <div class="tab-pane fade" id="jugadores" role="tabpanel" aria-labelledby="jugadores-tab">
+      <h5>Listado de jugadores (informativo)</h5>
+    </div>
+
+    <!-- Planificación -->
+    <div class="tab-pane fade" id="planificacion" role="tabpanel" aria-labelledby="planificacion-tab">
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          <%= form.label :fecha_inicio, "Fecha inicio" %>
+          <%= form.date_field :fecha_inicio, class: "form-control", name: "planificacion[fecha_inicio]" %>
+        </div>
+
+        <div class="col-md-4 mb-3">
+          <%= form.label :canchas, "Número de canchas" %>
+          <%= form.number_field :canchas, class: "form-control", name: "planificacion[canchas]", min: 1 %>
+        </div>
+
+        <div class="col-md-4 mb-3">
+          <%= form.label :duracion_partido, "Duración de partido (minutos)" %>
+          <%= form.number_field :duracion_partido, class: "form-control", name: "planificacion[duracion_partido]", min: 10 %>
+        </div>
+      </div>
+      <div class="mb-3">
+        <label>Bloquear Horarios (haz click para seleccionar/desseleccionar)</label>
+        <div id="calendar"></div>
+        <!-- Input oculto para enviar los horarios bloqueados -->
+        <input type="hidden" name="planificacion[horarios_bloqueados_json]" id="horarios_bloqueados_json" />
+      </div>
+
+
+    </div>
+
+    <!-- Partidos -->
+    <div class="tab-pane fade" id="partidos" role="tabpanel" aria-labelledby="partidos-tab">
+      <h5>Partidos programados</h5>
+      <% if @partidos.present? %>
+        <ul class="list-group">
+          <% @partidos.each do |partido| %>
+            <li class="list-group-item">
+              Partido <%= partido.id %>: <%= partido.fecha.strftime("%d/%m/%Y %H:%M") %> - Cancha <%= partido.cancha %>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p>No hay partidos programados.</p>
+      <% end %>
     </div>
   </div>
 
@@ -154,42 +206,108 @@
 <% end %>
 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const maxTipos = 4;
-    let tipoCount = 1;
+  // Código para agregar nuevos tipos de inscripción dinámicamente
+  document.getElementById('agregar-tipo').addEventListener('click', function() {
     const container = document.getElementById('tipos-inscripcion-container');
-    const btnAgregar = document.getElementById('agregar-tipo-btn');
+    const count = container.querySelectorAll('.tipo-inscripcion').length + 1;
 
-    btnAgregar.addEventListener('click', () => {
-      if (tipoCount >= maxTipos) {
-        alert("Solo puedes agregar hasta 4 tipos de inscripción.");
-        return;
-      }
-      tipoCount++;
+    const div = document.createElement('div');
+    div.classList.add('mb-3', 'border', 'p-3', 'rounded', 'tipo-inscripcion');
 
-      // Crear nuevo bloque tipo inscripción
-      const nuevoDiv = document.createElement('div');
-      nuevoDiv.classList.add('border', 'rounded', 'p-3', 'mb-3', 'tipo-inscripcion-item');
-      nuevoDiv.innerHTML = `
-        <h6>Tipo de Inscripción ${tipoCount}</h6>
-        <div class="mb-2">
-          <label for="tipo_inscripcion_${tipoCount - 1}_nombre">Nombre</label>
-          <input type="text" name="campeonato[tipo_inscripcions_attributes][${tipoCount - 1}][nombre]" id="tipo_inscripcion_${tipoCount - 1}_nombre" class="form-control">
-        </div>
-        <div class="mb-2">
-          <label for="tipo_inscripcion_${tipoCount - 1}_monto">Monto</label>
-          <input type="number" name="campeonato[tipo_inscripcions_attributes][${tipoCount - 1}][monto]" id="tipo_inscripcion_${tipoCount - 1}_monto" class="form-control">
-        </div>
-        <div class="mb-2">
-          <label for="tipo_inscripcion_${tipoCount - 1}_fecha_limite_pago">Fecha Límite de Pago</label>
-          <input type="date" name="campeonato[tipo_inscripcions_attributes][${tipoCount - 1}][fecha_limite_pago]" id="tipo_inscripcion_${tipoCount - 1}_fecha_limite_pago" class="form-control">
-        </div>
-        <div class="mb-2">
-          <label for="tipo_inscripcion_${tipoCount - 1}_beneficios">Beneficios</label>
-          <textarea name="campeonato[tipo_inscripcions_attributes][${tipoCount - 1}][beneficios]" id="tipo_inscripcion_${tipoCount - 1}_beneficios" rows="2" class="form-control"></textarea>
-        </div>
-      `;
-      container.appendChild(nuevoDiv);
+    div.innerHTML = `
+      <h6>Tipo de Inscripción ${count}</h6>
+      <div class="mb-2">
+        <label>Nombre</label>
+        <input type="text" class="form-control" name="tipo_nombre[]">
+      </div>
+      <div class="mb-2">
+        <label>Monto</label>
+        <input type="number" class="form-control" name="tipo_monto[]">
+      </div>
+      <div class="mb-2">
+        <label>Fecha límite de pago</label>
+        <input type="date" class="form-control" name="tipo_fecha_limite[]">
+      </div>
+      <div class="mb-2">
+        <label>Beneficios</label>
+        <textarea class="form-control" name="tipo_beneficios[]"></textarea>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+
+  // Función para toggle botones categorías
+  function toggleSeleccion(clase) {
+    const elementos = document.querySelectorAll(`.${clase}`);
+    elementos.forEach(el => {
+      el.checked = !el.checked;
     });
+  }
+</script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    let blockedEvents = []; // Horarios bloqueados (eventos)
+
+    // Si tienes horarios bloqueados en formato JSON para editar (ejemplo desde servidor)
+ blockedEvents = horariosGuardados || [];
+
+    // Convertir horarios bloqueados (ejemplo: [{start: '2025-06-02T08:00:00', end: '2025-06-02T09:00:00'}]) a eventos de FullCalendar
+    const events = blockedEvents.map(ev => ({
+      id: ev.id || Math.random().toString(36).substr(2, 9),
+      title: 'Bloqueado',
+      start: ev.start,
+      end: ev.end,
+      color: '#ff0000'
+    }));
+
+    const calendarEl = document.getElementById('calendar');
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'timeGridWeek',
+      slotMinTime: "08:00:00",
+      slotMaxTime: "22:00:00",
+      selectable: true,
+      selectOverlap: false,
+      editable: false,
+      allDaySlot: false,
+      events: events,
+
+      // Al seleccionar (click y drag o solo click)
+      select: function(selectionInfo) {
+        // Verificar si hay un evento ya en esa franja para evitar solapamiento
+        const overlapping = calendar.getEvents().some(event => {
+          return (selectionInfo.start < event.end && selectionInfo.end > event.start);
+        });
+        if(overlapping) {
+          // Si ya está bloqueado, quitarlo (toggle)
+          const overlappingEvent = calendar.getEvents().find(event => (selectionInfo.start < event.end && selectionInfo.end > event.start));
+          overlappingEvent.remove();
+          blockedEvents = blockedEvents.filter(ev => ev.id !== overlappingEvent.id);
+        } else {
+          // Agregar nuevo evento bloqueado
+          const newEvent = {
+            id: Math.random().toString(36).substr(2, 9),
+            title: 'Bloqueado',
+            start: selectionInfo.startStr,
+            end: selectionInfo.endStr,
+            color: '#ff0000'
+          };
+          calendar.addEvent(newEvent);
+          blockedEvents.push(newEvent);
+        }
+
+        calendar.unselect();
+        actualizarInput();
+      }
+    });
+
+    calendar.render();
+
+    function actualizarInput() {
+      // Guardar la info en el input oculto para enviar al backend (JSON)
+      document.getElementById('horarios_bloqueados_json').value = JSON.stringify(blockedEvents);
+    }
+
+    actualizarInput();
   });
 </script>

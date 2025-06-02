@@ -5,8 +5,21 @@ class CampeonatosController < ApplicationController
   # GET /campeonatos or /campeonatos.json
   def index
     @campeonatos = Campeonato.all
-  end
 
+    if params[:nombre].present?
+      @campeonatos = @campeonatos.where("nombre ILIKE ?", "%#{params[:nombre]}%")
+    end
+
+    if params[:tipo].present? && params[:tipo] != 'Todos'
+      @campeonatos = @campeonatos.where(tipo: params[:tipo])
+    end
+
+    if params[:estado].present? && params[:estado] != 'Todos'
+      @campeonatos = @campeonatos.where(estado: params[:estado])
+    end
+
+    @campeonatos = @campeonatos.order(fecha_inicio: :asc)
+  end
   # GET /campeonatos/1 or /campeonatos/1.json
   def show
   end
@@ -24,15 +37,15 @@ end
   # POST /campeonatos or /campeonatos.json
   def create
     @campeonato = Campeonato.new(campeonato_params)
+    @campeonato.club_id = current_user.club.id # Asignamos el club actual
 
-    respond_to do |format|
-      if @campeonato.save
-        format.html { redirect_to @campeonato, notice: "Campeonato was successfully created." }
-        format.json { render :show, status: :created, location: @campeonato }
-      else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @campeonato.errors, status: :unprocessable_entity }
-      end
+    if @campeonato.save
+      guardar_tipos_inscripcion
+      guardar_categorias
+
+      redirect_to @campeonato, notice: 'Campeonato creado correctamente.'
+    else
+      render :new, status: :unprocessable_entity
     end
   end
 
@@ -66,11 +79,34 @@ end
     end
 
     # Only allow a list of trusted parameters through.
-    def campeonato_params
-      params.require(:campeonato).permit(
-        :club_id, :categoria_id, :nombre, :descripcion, :foto, :normativo, :tipo,
-        :fecha_inicio, :fecha_termino, :cupos_maximos, :estado, :reglas,
-        tipo_inscripcions_attributes: [:id, :nombre, :monto, :fecha_limite_pago, :beneficios, :_destroy]
+
+  def campeonato_params
+    params.require(:campeonato).permit(
+      :nombre, :tipo, :fecha_inicio, :fecha_termino,
+      :cupos_maximos, :estado, :descripcion, :normativo, :reglas
+    )
+  end
+
+  def guardar_tipos_inscripcion
+    return unless params[:tipo_nombre]
+
+    params[:tipo_nombre].each_with_index do |nombre, i|
+      @campeonato.tipo_inscripcions.create(
+        nombre: nombre,
+        monto: params[:tipo_monto][i],
+        fecha_limite_pago: params[:tipo_fecha_limite][i],
+        beneficios: params[:tipo_beneficios][i]
       )
     end
+  end
+
+  def guardar_categorias
+    categorias = []
+
+    categorias.each do |cat|
+      @campeonato.categorias.create(
+        nombre: cat[:nombre]
+      )
+    end
+  end
 end

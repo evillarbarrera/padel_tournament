@@ -1,26 +1,93 @@
 <!-- app/views/campeonatos/index.html.erb -->
-<h1 class="mb-4">Listado de Campeonatos</h1>
 
-<table class="table table-striped">
-  <thead>
-    <tr>
-      <th>Nombre</th>
-      <th>Fecha</th>
-      <th>Acciones</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @campeonatos.each do |campeonato| %>
+<div style="border: 1px solid #d1d5db; border-radius: 12px; padding: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); background-color: white;">
+
+  <h1 class="mb-4" style="color: #1e293b; font-weight: 700; text-align: center;">Listado de Campeonatos</h1>
+
+  <!-- Formulario de filtros -->
+  <%= form_with url: campeonatos_path, method: :get, local: true, class: "mb-4 row g-3 align-items-center" do |f| %>
+    <div class="col-md-4">
+      <%= f.label :nombre, "Nombre", class: "form-label" %>
+      <%= f.text_field :nombre, value: params[:nombre], class: "form-control", placeholder: "Buscar por nombre" %>
+    </div>
+
+    <div class="col-md-3">
+      <%= f.label :tipo, "Tipo Campeonato", class: "form-label" %>
+      <%= f.select :tipo, options_for_select(['Todos', 'Campeonato', 'Americano', 'Liga'], selected: params[:tipo]), {}, class: "form-select" %>
+    </div>
+
+    <div class="col-md-3">
+      <%= f.label :estado, "Estado", class: "form-label" %>
+      <%= f.select :estado, options_for_select(['Todos', 'Activo', 'Pendiente', 'En curso'], selected: params[:estado]), {}, class: "form-select" %>
+    </div>
+
+    <div class="col-md-2 d-flex align-items-end">
+      <%= f.submit "Filtrar", class: "btn btn-primary w-100" %>
+    </div>
+  <% end %>
+
+  <table class="table table-striped table-hover" style="border-radius: 8px; overflow: hidden;">
+    <thead style="background-color: #e2e8f0; color: #334155;">
       <tr>
-        <td><%= campeonato.nombre %></td>
-        <td><%= campeonato.fecha %></td>
-        <td>
-          <%= link_to "Ver", campeonato_path(campeonato), class: "btn btn-sm btn-outline-primary" %>
-          <%= link_to "Editar", edit_campeonato_path(campeonato), class: "btn btn-sm btn-outline-secondary" %>
-        </td>
+        <th>Nombre</th>
+        <th>Tipo Campeonato</th>
+        <th>Fecha Inicio</th>
+        <th>Cupos Máximos</th>
+        <th>Estado</th>
+        <th>Acciones</th>
       </tr>
-    <% end %>
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      <% @campeonatos.each do |campeonato| %>
+        <tr>
+          <td><%= campeonato.nombre %></td>
+          <td>
+            <% tipo_class = case campeonato.tipo.downcase %>
+              <% when 'regional' then 'badge bg-primary' %>
+              <% when 'nacional' then 'badge bg-success' %>
+              <% when 'internacional' then 'badge bg-warning text-dark' %>
+              <% else 'badge bg-secondary' %>
+            <% end %>
+            <span class="<%= tipo_class %>"><%= campeonato.tipo.capitalize %></span>
+          </td>
+          <td>
+            <% hoy = Date.current %>
+            <% fecha_inicio = campeonato.fecha_inicio %>
+            <% if fecha_inicio < hoy %>
+              <span class="badge bg-danger">Iniciado</span>
+              <%= fecha_inicio.strftime("%d %b %Y") %>
+            <% elsif fecha_inicio == hoy %>
+              <span class="badge bg-info text-dark">Empieza hoy</span>
+              <%= fecha_inicio.strftime("%d %b %Y") %>
+            <% elsif fecha_inicio <= hoy + 7.days %>
+              <span class="badge bg-warning text-dark">Próximo</span>
+              <%= fecha_inicio.strftime("%d %b %Y") %>
+            <% else %>
+              <span class="badge bg-secondary">En espera</span>
+              <%= fecha_inicio.strftime("%d %b %Y") %>
+            <% end %>
+          </td>
+          <td><%= campeonato.cupos_maximos %></td>
+          <td>
+            <% estado_class = case campeonato.estado.downcase %>
+              <% when 'activo' then 'badge bg-success' %>
+              <% when 'finalizado' then 'badge bg-secondary' %>
+              <% when 'cancelado' then 'badge bg-danger' %>
+              <% else 'badge bg-info' %>
+            <% end %>
+            <span class="<%= estado_class %>"><%= campeonato.estado.capitalize %></span>
+          </td>
+          <td>
+            <%= link_to "Ver", campeonato_path(campeonato), class: "btn btn-sm btn-outline-primary" %>
+            <%= link_to "Editar", edit_campeonato_path(campeonato), class: "btn btn-sm btn-outline-secondary" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
 
-<%= link_to "Nuevo Campeonato", new_campeonato_path, class: "btn btn-success mt-3" %>
+  <div style="text-align: center;">
+    <%= link_to "Nuevo Campeonato", new_campeonato_path, class: "btn btn-success mt-3 px-4" %>
+  </div>
+
+</div>
