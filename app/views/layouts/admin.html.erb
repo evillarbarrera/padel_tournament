@@ -200,15 +200,11 @@
 
       <div class="menu-separator"></div>
 
-      <a class="nav-link toggle-submenu" data-bs-toggle="collapse" href="#campeonatosSubmenu" role="button" aria-expanded="false" aria-controls="campeonatosSubmenu">
-        <i class="bi bi-trophy"></i> Campeonatos <i class="bi bi-caret-down-fill"></i>
-      </a>
-      <div class="submenu collapse" id="campeonatosSubmenu">
-        <a href="/campeonatos" class="nav-link">Campeonatos</a>
-        <a href="#" class="nav-link">Ligas</a>
-        <a href="#" class="nav-link">Americanos</a>
-        <a href="#" class="nav-link">Campeonatos Express</a>
-      </div>
+      <%= link_to "/campeonatos", class: "btn nav-link w-100 text-start" do %>
+        <i class="bi bi-trophy"></i> Campeonatos
+      <% end %>
+
+
 
       <div class="menu-separator"></div>
 
