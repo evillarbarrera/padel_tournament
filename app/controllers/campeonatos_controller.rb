@@ -1,5 +1,5 @@
 class CampeonatosController < ApplicationController
-  before_action :set_campeonato, only: %i[ show edit update destroy ]
+  before_action :set_campeonato, only: [:show, :edit, :update, :destroy]
 
   layout "admin" # si tienes un layout especial, opcional
   # GET /campeonatos or /campeonatos.json
@@ -25,10 +25,10 @@ class CampeonatosController < ApplicationController
   end
 
   # GET /campeonatos/new
-def new
-  @campeonato = Campeonato.new
-  @campeonato.tipo_inscripcions.build  # Para que aparezca al menos uno por defecto
-end
+  def new
+    @campeonato = Campeonato.new
+    @campeonato.tipo_inscripcions.build  # Para que aparezca al menos uno por defecto
+  end
 
   # GET /campeonatos/1/edit
   def edit
@@ -75,7 +75,7 @@ end
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_campeonato
-      @campeonato = Campeonato.find(params.expect(:id))
+      @campeonato = Campeonato.find(params[:id])
     end
 
     # Only allow a list of trusted parameters through.

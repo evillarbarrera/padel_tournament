@@ -1,6 +1,6 @@
 class Campeonato < ApplicationRecord
   belongs_to :club
-  
+  has_one_attached :foto
   has_many :campeonato_categorias, dependent: :destroy
   has_many :categorias, through: :campeonato_categorias
 

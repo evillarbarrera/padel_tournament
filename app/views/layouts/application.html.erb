@@ -44,7 +44,7 @@
       <!-- Menú centrado -->
       <ul class="navbar-nav mx-auto mb-2 mb-lg-0 text-center">
         <%= link_to "Home", root_path, class: "nav-link text-dark", "aria-current": "page" %>
-        <li class="nav-item"><a class="nav-link text-dark" href="#!">Torneos</a></li>
+        <%= link_to "Torneo",  home_publicos_path, class: "nav-link text-dark", "aria-current": "page" %>
         <li class="nav-item"><a class="nav-link text-dark" href="#!">Galerías</a></li>
         <li class="nav-item"><a class="nav-link text-dark" href="#!">Contacto</a></li>
       </ul>
@@ -70,9 +70,9 @@
 </nav>
 
 
-  <div>
+  
     <%= yield %>
-  </div>
+ 
 
   
 

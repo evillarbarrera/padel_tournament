@@ -1,0 +1,137 @@
+<style>
+  body, html {
+    height: 100%;
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: url('https://resasports.com/wp-content/uploads/2023/08/maximizar-ocupacion-pistas-de-padel-scaled.jpg') no-repeat center center fixed;
+    background-size: cover;
+    position: relative;
+  }
+
+  .campeonatos-fondo::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85); /* fondo más opaco */
+    z-index: -1;
+  }
+
+  .campeonatos-contenedor {
+    padding: 2rem 1rem 3rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    color: white;
+  }
+
+  .campeonatos-titulo {
+    font-weight: bold;
+    font-size: 2.5rem;
+    text-align: center;
+    margin-bottom: 2rem;
+    text-shadow: 0 3px 8px rgba(0, 0, 0, 0.7);
+  }
+
+  .campeonatos-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    justify-content: center;
+  }
+
+  .campeonato-item {
+    flex: 1 1 calc(50% - 1.5rem);
+    max-width: calc(50% - 1.5rem);
+  }
+
+  @media(min-width: 768px) {
+    .campeonato-item {
+      flex: 1 1 calc(25% - 1.5rem);
+      max-width: calc(25% - 1.5rem);
+    }
+  }
+
+  .campeonato-card {
+    background: rgba(255, 255, 255, 0.9); /* fondo blanco opaco */
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease;
+    color: #222; /* texto oscuro */
+  }
+
+  .campeonato-card:hover {
+    transform: scale(1.05);
+  }
+
+  .campeonato-img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    border-bottom: 2px solid #007bff;
+  }
+
+  .campeonato-body {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .campeonato-titulo {
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin: 0.2rem 0;
+    color: #111;
+  }
+
+  .campeonato-detalle {
+    margin: 0.2rem 0;
+    font-size: 0.9rem;
+    color: #333;
+  }
+
+  .campeonato-btn {
+    margin-top: auto;
+    padding: 0.6rem 0;
+    font-weight: bold;
+    font-size: 1rem;
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    text-align: center;
+  }
+
+  .campeonato-btn:hover {
+    background: linear-gradient(135deg, #0056b3, #003f7f);
+  }
+</style>
+<div class="campeonatos-contenedor campeonatos-fondo">
+  <h1 class="campeonatos-titulo">Campeonatos Disponibles</h1>
+  <div class="campeonatos-grid">
+    <% @campeonatos.each do |campeonato| %>
+      <div class="campeonato-item">
+        <div class="campeonato-card">
+          <% if campeonato.foto.attached? %>
+            <%= image_tag campeonato.foto, class: "campeonato-img" %>
+          <% else %>
+            <%= image_tag 'https://golfsantodomingo.cl/wp-content/uploads/2023/01/torneo-padel.png', class: "campeonato-img" %>
+          <% end %>
+
+          <div class="campeonato-body">
+            <h6 class="campeonato-titulo"><%= campeonato.nombre %></h6>
+            <h6 class="campeonato-titulo"><%= campeonato.tipo %></h6>
+            <p class="campeonato-detalle"><strong>Club:</strong> <%= campeonato.club.nombre if campeonato.club %></p>
+            <p class="campeonato-detalle"><strong>Inicio:</strong> <%= campeonato.fecha_inicio.strftime('%d/%m/%Y') %></p>
+            <button class="campeonato-btn" type="button">Inscribirse</button>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

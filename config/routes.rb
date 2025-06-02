@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  resources :campeonatos
+
   #devise_for :users
   devise_for :users, controllers: {
     registrations: 'users/registrations'
@@ -7,6 +7,9 @@ Rails.application.routes.draw do
   root "home#index"
   
   resources :users, only: [:show, :edit, :update]
+
+  get 'home/publicos', to: 'home#publicos', as: 'home_publicos'
+  resources :campeonatos
 
   namespace :admin do
     get "dashboard/index"
