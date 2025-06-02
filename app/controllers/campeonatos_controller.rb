@@ -4,7 +4,7 @@ class CampeonatosController < ApplicationController
   layout "admin" # si tienes un layout especial, opcional
   # GET /campeonatos or /campeonatos.json
   def index
-    @campeonatos = Campeonato.all
+    @campeonatos = Campeonato.where(club_id: current_user.club.id)
 
     if params[:nombre].present?
       @campeonatos = @campeonatos.where("nombre ILIKE ?", "%#{params[:nombre]}%")
