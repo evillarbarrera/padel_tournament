@@ -1,4 +1,3 @@
-
 <%= form_with(model: @campeonato, local: true) do |form| %>
   <ul class="nav nav-tabs mb-4" id="campeonatoTabs" role="tablist">
     <li class="nav-item" role="presentation">
@@ -9,6 +8,9 @@
     </li>
     <li class="nav-item" role="presentation">
       <a class="nav-link" id="categorias-tab" data-bs-toggle="tab" href="#categorias" role="tab" aria-controls="categorias" aria-selected="false">Categorías</a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <a class="nav-link" id="horarios-tab" data-bs-toggle="tab" href="#horarios" role="tab" aria-controls="horarios" aria-selected="false">Horarios</a>
     </li>
   </ul>
 
@@ -30,7 +32,6 @@
           <%= form.label :tipo, "Tipo de Campeonato" %>
           <%= form.select :tipo, ['Campeonato', 'Liga', 'Americano'], {}, class: "form-control" %>
         </div>
-
 
         <div class="col-md-2">
           <%= form.label :fecha_inicio %>
@@ -70,7 +71,7 @@
 
       <div class="mb-3">
         <%= form.label :foto %>
-        <%= file_field_tag :foto, class: "form-control form-control-sm input-compact", style: "border-radius: 8px; height: 34px; width: 100%;" %>
+        <%= form.file_field :foto, class: "form-control" %>
       </div>
     </div>
 
@@ -150,6 +151,13 @@
       </div>
     </div>
 
+    <!-- Horarios (FullCalendar) -->
+    <div class="tab-pane fade" id="horarios" role="tabpanel" aria-labelledby="horarios-tab">
+      <h5 class="mb-3">Horarios bloqueados</h5>
+      <div id="calendar" style="max-width: 900px; margin: 0 auto;"></div>
+      <%= form.hidden_field :horarios_bloqueados_json, id: "horarios_bloqueados_json" %>
+    </div>
+  </div>
 
   <div class="mt-4">
     <%= form.submit "Guardar Campeonato", class: "btn btn-primary" %>
@@ -161,11 +169,9 @@
   document.getElementById('agregar-tipo').addEventListener('click', function() {
     const container = document.getElementById('tipos-inscripcion-container');
     const count = container.querySelectorAll('.tipo-inscripcion').length + 1;
-
-    const div = document.createElement('div');
-    div.classList.add('mb-3', 'border', 'p-3', 'rounded', 'tipo-inscripcion');
-
-    div.innerHTML = `
+    const nuevo = document.createElement('div');
+    nuevo.classList.add('mb-3', 'border', 'p-3', 'rounded', 'tipo-inscripcion');
+    nuevo.innerHTML = `
       <h6>Tipo de Inscripción ${count}</h6>
       <div class="mb-2">
         <label>Nombre</label>
@@ -184,81 +190,87 @@
         <textarea class="form-control" name="tipo_beneficios[]"></textarea>
       </div>
     `;
-    container.appendChild(div);
+    container.appendChild(nuevo);
   });
 
-  // Función para toggle botones categorías
-  function toggleSeleccion(clase) {
-    const elementos = document.querySelectorAll(`.${clase}`);
-    elementos.forEach(el => {
-      el.checked = !el.checked;
-    });
+  // Función para toggle categorías
+  function toggleSeleccion(categoria) {
+    const hombresCompetitiva = document.querySelectorAll('.masculino-competitiva');
+    const hombresSenior = document.querySelectorAll('.masculino-senior');
+    const mujeresCompetitiva = document.querySelectorAll('.femenino-competitiva');
+    const mujeresSenior = document.querySelectorAll('.femenino-senior');
+
+    switch (categoria) {
+      case 'masculino-competitiva':
+        hombresCompetitiva.forEach(chk => chk.checked = !chk.checked);
+        break;
+      case 'masculino-senior':
+        hombresSenior.forEach(chk => chk.checked = !chk.checked);
+        break;
+      case 'femenino-competitiva':
+        mujeresCompetitiva.forEach(chk => chk.checked = !chk.checked);
+        break;
+      case 'femenino-senior':
+        mujeresSenior.forEach(chk => chk.checked = !chk.checked);
+        break;
+      case 'todos':
+        hombresCompetitiva.forEach(chk => chk.checked = true);
+        hombresSenior.forEach(chk => chk.checked = true);
+        mujeresCompetitiva.forEach(chk => chk.checked = true);
+        mujeresSenior.forEach(chk => chk.checked = true);
+        break;
+    }
   }
-</script>
 
-<script>
+  // FullCalendar Setup
   document.addEventListener('DOMContentLoaded', function() {
-    let blockedEvents = []; // Horarios bloqueados (eventos)
-
-    // Si tienes horarios bloqueados en formato JSON para editar (ejemplo desde servidor)
- blockedEvents = horariosGuardados || [];
-
-    // Convertir horarios bloqueados (ejemplo: [{start: '2025-06-02T08:00:00', end: '2025-06-02T09:00:00'}]) a eventos de FullCalendar
-    const events = blockedEvents.map(ev => ({
-      id: ev.id || Math.random().toString(36).substr(2, 9),
-      title: 'Bloqueado',
-      start: ev.start,
-      end: ev.end,
-      color: '#ff0000'
-    }));
-
-    const calendarEl = document.getElementById('calendar');
-    const calendar = new FullCalendar.Calendar(calendarEl, {
-      initialView: 'timeGridWeek',
-      slotMinTime: "08:00:00",
-      slotMaxTime: "22:00:00",
-      selectable: true,
-      selectOverlap: false,
-      editable: false,
-      allDaySlot: false,
-      events: events,
-
-      // Al seleccionar (click y drag o solo click)
-      select: function(selectionInfo) {
-        // Verificar si hay un evento ya en esa franja para evitar solapamiento
-        const overlapping = calendar.getEvents().some(event => {
-          return (selectionInfo.start < event.end && selectionInfo.end > event.start);
-        });
-        if(overlapping) {
-          // Si ya está bloqueado, quitarlo (toggle)
-          const overlappingEvent = calendar.getEvents().find(event => (selectionInfo.start < event.end && selectionInfo.end > event.start));
-          overlappingEvent.remove();
-          blockedEvents = blockedEvents.filter(ev => ev.id !== overlappingEvent.id);
-        } else {
-          // Agregar nuevo evento bloqueado
-          const newEvent = {
-            id: Math.random().toString(36).substr(2, 9),
-            title: 'Bloqueado',
-            start: selectionInfo.startStr,
-            end: selectionInfo.endStr,
-            color: '#ff0000'
-          };
-          calendar.addEvent(newEvent);
-          blockedEvents.push(newEvent);
-        }
-
-        calendar.unselect();
-        actualizarInput();
-      }
-    });
-
-    calendar.render();
-
-    function actualizarInput() {
-      // Guardar la info en el input oculto para enviar al backend (JSON)
-      document.getElementById('horarios_bloqueados_json').value = JSON.stringify(blockedEvents);
+    var calendarEl = document.getElementById('calendar');
+    var horariosBloqueadosInput = document.getElementById('horarios_bloqueados_json');
+    
+    // Parse existing horarios bloqueados from form hidden input or empty array
+    var existingEvents = [];
+    try {
+      existingEvents = JSON.parse(horariosBloqueadosInput.value) || [];
+    } catch {
+      existingEvents = [];
     }
 
-    actualizarInput();
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'timeGridWeek',
+      selectable: true,
+      nowIndicator: true,
+      locale: 'es',
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'timeGridWeek,timeGridDay'
+      },
+      events: existingEvents,
+      select: function(info) {
+        var title = prompt('Bloquear horario. Motivo (opcional):');
+        if (title) {
+          var newEvent = {
+            title: title,
+            start: info.startStr,
+            end: info.endStr,
+            allDay: false,
+            backgroundColor: '#ff0000',
+            borderColor: '#ff0000'
+          };
+          calendar.addEvent(newEvent);
+          existingEvents.push(newEvent);
+          horariosBloqueadosInput.value = JSON.stringify(existingEvents);
+        }
+        calendar.unselect();
+      },
+      eventClick: function(info) {
+        if(confirm(`¿Eliminar este bloqueo "${info.event.title}"?`)) {
+          info.event.remove();
+          existingEvents = existingEvents.filter(e => !(e.start === info.event.startStr && e.end === info.event.endStr && e.title === info.event.title));
+          horariosBloqueadosInput.value = JSON.stringify(existingEvents);
+        }
+      }
+    });
+    calendar.render();
   });
 </script>

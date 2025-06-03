@@ -1,8 +1,8 @@
 class CampeonatosController < ApplicationController
   before_action :set_campeonato, only: [:show, :edit, :update, :destroy]
 
-  layout "admin" # si tienes un layout especial, opcional
-  # GET /campeonatos or /campeonatos.json
+  layout "admin"
+
   def index
     @campeonatos = Campeonato.where(club_id: current_user.club.id)
 
@@ -20,77 +20,66 @@ class CampeonatosController < ApplicationController
 
     @campeonatos = @campeonatos.order(fecha_inicio: :asc)
   end
-  # GET /campeonatos/1 or /campeonatos/1.json
-  def show
-  end
 
-  # GET /campeonatos/new
+  def show; end
+
   def new
     @campeonato = Campeonato.new
-    @campeonato.tipo_inscripcions.build  # Para que aparezca al menos uno por defecto
+    @campeonato.tipo_inscripcions.build
   end
 
-  # GET /campeonatos/1/edit
-  def edit
-  end
+  def edit; end
 
-  # POST /campeonatos or /campeonatos.json
   def create
     @campeonato = Campeonato.new(campeonato_params)
-    @campeonato.club_id = current_user.club.id # Asignamos el club actual
+    @campeonato.club_id = current_user.club.id
 
     if @campeonato.save
       guardar_tipos_inscripcion
-      guardar_categorias
-
+      guardar_categorias_por_nombre
       redirect_to @campeonato, notice: 'Campeonato creado correctamente.'
     else
       render :new, status: :unprocessable_entity
     end
   end
 
-  # PATCH/PUT /campeonatos/1 or /campeonatos/1.json
   def update
-    respond_to do |format|
-      if @campeonato.update(campeonato_params)
-        format.html { redirect_to @campeonato, notice: "Campeonato was successfully updated." }
-        format.json { render :show, status: :ok, location: @campeonato }
-      else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @campeonato.errors, status: :unprocessable_entity }
-      end
+    if @campeonato.update(campeonato_params)
+      actualizar_tipos_inscripcion
+      actualizar_categorias_por_nombre
+      redirect_to @campeonato, notice: 'Campeonato actualizado correctamente.'
+    else
+      render :edit, status: :unprocessable_entity
     end
   end
 
-  # DELETE /campeonatos/1 or /campeonatos/1.json
   def destroy
     @campeonato.destroy!
-
-    respond_to do |format|
-      format.html { redirect_to campeonatos_path, status: :see_other, notice: "Campeonato was successfully destroyed." }
-      format.json { head :no_content }
-    end
+    redirect_to campeonatos_path, status: :see_other, notice: "Campeonato eliminado correctamente."
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_campeonato
-      @campeonato = Campeonato.find(params[:id])
-    end
 
-    # Only allow a list of trusted parameters through.
+  def set_campeonato
+    @campeonato = Campeonato.find(params[:id])
+  end
 
   def campeonato_params
     params.require(:campeonato).permit(
       :nombre, :tipo, :fecha_inicio, :fecha_termino,
-      :cupos_maximos, :estado, :descripcion, :normativo, :reglas
+      :cupos_maximos, :estado, :descripcion, :normativo,
+      :reglas, :foto
+      # cat_mas y cat_fem NO van aquí porque no son atributos directos de Campeonato
     )
   end
 
+  # Guardar tipos inscripción nuevos en create
   def guardar_tipos_inscripcion
-    return unless params[:tipo_nombre]
+    return unless params[:tipo_nombre].present?
 
     params[:tipo_nombre].each_with_index do |nombre, i|
+      next if nombre.blank?
+
       @campeonato.tipo_inscripcions.create(
         nombre: nombre,
         monto: params[:tipo_monto][i],
@@ -100,13 +89,29 @@ class CampeonatosController < ApplicationController
     end
   end
 
-  def guardar_categorias
-    categorias = []
+  # Actualizar tipos inscripción en update
+  def actualizar_tipos_inscripcion
+    @campeonato.tipo_inscripcions.destroy_all
+    guardar_tipos_inscripcion
+  end
 
-    categorias.each do |cat|
-      @campeonato.categorias.create(
-        nombre: cat[:nombre]
-      )
+  # Guardar categorías asociadas en create (o en update, desde actualizar_categorias_por_nombre)
+  def guardar_categorias_por_nombre
+    # 1) Reunir todos los nombres de cat_mas y cat_fem
+    nombres = Array(params[:cat_mas]) + Array(params[:cat_fem])
+    # 2) Eliminar duplicados y blancos
+    nombres.map!(&:to_s)
+    nombres.uniq.reject!(&:blank?)
+
+    nombres.each do |nombre_cat|
+      categoria = Categoria.find_or_create_by(nombre: nombre_cat)
+      @campeonato.categorias << categoria unless @campeonato.categorias.include?(categoria)
     end
+  end
+
+  # En update: borrar asociaciones previas y volver a llamar a guardar_categorias_por_nombre
+  def actualizar_categorias_por_nombre
+    @campeonato.categorias.clear
+    guardar_categorias_por_nombre
   end
 end
