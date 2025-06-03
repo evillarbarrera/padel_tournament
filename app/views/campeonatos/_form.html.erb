@@ -1,4 +1,4 @@
-<%= form_with(model: @campeonato, local: true) do |form| %>
+<%= form_with(model: @campeonato, local: true, html: { multipart: true }) do |form| %>
   <ul class="nav nav-tabs mb-4" id="campeonatoTabs" role="tablist">
     <li class="nav-item" role="presentation">
       <a class="nav-link active" id="datos-tab" data-bs-toggle="tab" href="#datos" role="tab" aria-controls="datos" aria-selected="true">Datos Básicos</a>
@@ -8,9 +8,6 @@
     </li>
     <li class="nav-item" role="presentation">
       <a class="nav-link" id="categorias-tab" data-bs-toggle="tab" href="#categorias" role="tab" aria-controls="categorias" aria-selected="false">Categorías</a>
-    </li>
-    <li class="nav-item" role="presentation">
-      <a class="nav-link" id="horarios-tab" data-bs-toggle="tab" href="#horarios" role="tab" aria-controls="horarios" aria-selected="false">Horarios</a>
     </li>
   </ul>
 
@@ -71,91 +68,111 @@
 
       <div class="mb-3">
         <%= form.label :foto %>
-        <%= form.file_field :foto, class: "form-control" %>
+        <%= form.file_field :foto, class: "form-control form-control-sm input-compact", style: "border-radius: 8px; height: 34px; width: 100%;" %>
       </div>
     </div>
 
-    <!-- Tipos Inscripción -->
-    <div class="tab-pane fade" id="tipos" role="tabpanel" aria-labelledby="tipos-tab">
-      <div id="tipos-inscripcion-container">
+   <!-- Tipos Inscripción -->
+<div class="tab-pane fade" id="tipos" role="tabpanel" aria-labelledby="tipos-tab">
+  <div id="tipos-inscripcion-container">
+    <% if @campeonato.tipo_inscripcions.any? %>
+      <% @campeonato.tipo_inscripcions.each_with_index do |tipo, index| %>
         <div class="mb-3 border p-3 rounded tipo-inscripcion">
-          <h6>Tipo de Inscripción 1</h6>
+          <h6>Tipo de Inscripción <%= index + 1 %></h6>
+          <button type="button" class="btn btn-sm btn-danger float-end eliminar-tipo">Eliminar</button>
+
+          <!-- Campo oculto con el ID -->
+          <input type="hidden" name="tipo_id[]" value="<%= tipo.id %>">
+
           <div class="mb-2">
             <label>Nombre</label>
-            <input type="text" class="form-control" name="tipo_nombre[]">
+            <input type="text" class="form-control" name="tipo_nombre[]" value="<%= tipo.nombre %>">
           </div>
           <div class="mb-2">
             <label>Monto</label>
-            <input type="number" class="form-control" name="tipo_monto[]">
+            <input type="number" class="form-control" name="tipo_monto[]" value="<%= tipo.monto %>">
           </div>
           <div class="mb-2">
             <label>Fecha límite de pago</label>
-            <input type="date" class="form-control" name="tipo_fecha_limite[]">
+            <input type="date" class="form-control" name="tipo_fecha_limite[]" value="<%= tipo.fecha_limite_pago %>">
           </div>
           <div class="mb-2">
             <label>Beneficios</label>
-            <textarea class="form-control" name="tipo_beneficios[]"></textarea>
+            <textarea class="form-control" name="tipo_beneficios[]"><%= tipo.beneficios %></textarea>
           </div>
         </div>
+      <% end %>
+    <% else %>
+      <div class="mb-3 border p-3 rounded tipo-inscripcion">
+        <h6>Tipo de Inscripción 1</h6>
+        <button type="button" class="btn btn-sm btn-danger float-end eliminar-tipo">Eliminar</button>
+        <div class="mb-2">
+          <label>Nombre</label>
+          <input type="text" class="form-control" name="tipo_nombre[]">
+        </div>
+        <div class="mb-2">
+          <label>Monto</label>
+          <input type="number" class="form-control" name="tipo_monto[]">
+        </div>
+        <div class="mb-2">
+          <label>Fecha límite de pago</label>
+          <input type="date" class="form-control" name="tipo_fecha_limite[]">
+        </div>
+        <div class="mb-2">
+          <label>Beneficios</label>
+          <textarea class="form-control" name="tipo_beneficios[]"></textarea>
+        </div>
       </div>
-      <button type="button" class="btn btn-outline-primary mt-2" id="agregar-tipo">+ Agregar tipo</button>
-    </div>
+    <% end %>
+  </div>
+  <button type="button" class="btn btn-outline-primary mt-2" id="agregar-tipo">+ Agregar tipo</button>
+</div>
+
 
     <!-- Categorías -->
     <div class="tab-pane fade" id="categorias" role="tabpanel" aria-labelledby="categorias-tab">
       <h5 class="mb-3">Selecciona las categorías del campeonato</h5>
       <div class="mb-4 d-flex flex-wrap gap-2">
-        <button type="button" class="btn btn-outline-primary btn-sm" onclick="toggleSeleccion('masculino-competitiva')">Hombres Competitiva</button>
-        <button type="button" class="btn btn-outline-primary btn-sm" onclick="toggleSeleccion('masculino-senior')">Hombres Senior</button>
-        <button type="button" class="btn btn-outline-danger btn-sm" onclick="toggleSeleccion('femenino-competitiva')">Mujeres Competitiva</button>
-        <button type="button" class="btn btn-outline-danger btn-sm" onclick="toggleSeleccion('femenino-senior')">Mujeres Senior</button>
-        <button type="button" class="btn btn-outline-success btn-sm" onclick="toggleSeleccion('todos')">Hombres + Mujeres</button>
+        <button type="button" class="btn btn-sm btn-primary mb-2" onclick="toggleCheckboxes('all', true)">Seleccionar todos</button>
+          <button type="button" class="btn btn-sm btn-secondary mb-2" onclick="toggleCheckboxes('hombres', true)">Seleccionar todos hombres</button>
+          <button type="button" class="btn btn-sm btn-secondary mb-2" onclick="toggleCheckboxes('mujeres', true)">Seleccionar todos mujeres</button>
+          <button type="button" class="btn btn-sm btn-danger mb-2" onclick="toggleCheckboxes('all', false)">Deseleccionar todos</button>
+
       </div>
 
       <div class="row">
-        <div class="col-md-6">
-          <h6>Hombres - Competitiva</h6>
-          <% ["6ta", "5ta", "4ta", "3ra", "2da", "1ra"].each do |cat| %>
-            <div class="form-check">
-              <input class="form-check-input cat-mas masculino-competitiva" type="checkbox" name="cat_mas[]" id="cat-mas-<%= cat %>" value="<%= cat %>">
-              <label class="form-check-label" for="cat-mas-<%= cat %>"><%= cat %></label>
-            </div>
-          <% end %>
+       
+<div class="row">
+  <!-- Categorías Mujeres a la izquierda -->
+  <div class="col-md-6">
+    <h4>Categorías Mujeres</h4>
+    <button type="button" class="btn btn-sm btn-primary mb-2" onclick="toggleCheckboxes('mujeres', true)">Seleccionar todo</button>
+    <button type="button" class="btn btn-sm btn-secondary mb-2" onclick="toggleCheckboxes('mujeres', false)">Deseleccionar todo</button>
 
-          <h6 class="mt-3">Hombres - Senior</h6>
-          <% ["+35", "+40", "+45", "+50", "+55"].each do |cat| %>
-            <div class="form-check">
-              <input class="form-check-input cat-mas masculino-senior" type="checkbox" name="cat_mas[]" id="cat-mas-<%= cat %>" value="<%= cat %>">
-              <label class="form-check-label" for="cat-mas-<%= cat %>"><%= cat %></label>
-            </div>
-          <% end %>
-        </div>
-
-        <div class="col-md-6">
-          <h6>Mujeres - Competitiva</h6>
-          <% ["D", "C", "B", "A"].each do |cat| %>
-            <div class="form-check">
-              <input class="form-check-input cat-fem femenino-competitiva" type="checkbox" name="cat_fem[]" id="cat-fem-<%= cat %>" value="<%= cat %>">
-              <label class="form-check-label" for="cat-fem-<%= cat %>"><%= cat %></label>
-            </div>
-          <% end %>
-
-          <h6 class="mt-3">Mujeres - Senior</h6>
-          <% ["+35", "+40", "+45", "+50", "+55"].each do |cat| %>
-            <div class="form-check">
-              <input class="form-check-input cat-fem femenino-senior" type="checkbox" name="cat_fem[]" id="cat-fem-<%= cat %>" value="<%= cat %>">
-              <label class="form-check-label" for="cat-fem-<%= cat %>"><%= cat %></label>
-            </div>
-          <% end %>
-        </div>
+    <% @categorias.where(sexo: 'Mujeres').each do |categoria| %>
+      <div class="form-check">
+        <%= check_box_tag "campeonato[categoria_ids][]", categoria.id, @campeonato.categoria_ids.include?(categoria.id), id: "categoria_#{categoria.id}", class: "form-check-input mujeres" %>
+        <%= label_tag "categoria_#{categoria.id}", categoria.nombre, class: "form-check-label" %>
       </div>
-    </div>
+    <% end %>
+  </div>
 
-    <!-- Horarios (FullCalendar) -->
-    <div class="tab-pane fade" id="horarios" role="tabpanel" aria-labelledby="horarios-tab">
-      <h5 class="mb-3">Horarios bloqueados</h5>
-      <div id="calendar" style="max-width: 900px; margin: 0 auto;"></div>
-      <%= form.hidden_field :horarios_bloqueados_json, id: "horarios_bloqueados_json" %>
+  <!-- Categorías Hombres a la derecha -->
+  <div class="col-md-6">
+    <h4>Categorías Hombres</h4>
+    <button type="button" class="btn btn-sm btn-primary mb-2" onclick="toggleCheckboxes('hombres', true)">Seleccionar todo</button>
+    <button type="button" class="btn btn-sm btn-secondary mb-2" onclick="toggleCheckboxes('hombres', false)">Deseleccionar todo</button>
+
+    <% @categorias.where(sexo: 'Hombres').each do |categoria| %>
+      <div class="form-check">
+        <%= check_box_tag "campeonato[categoria_ids][]", categoria.id, @campeonato.categoria_ids.include?(categoria.id), id: "categoria_#{categoria.id}", class: "form-check-input hombres" %>
+        <%= label_tag "categoria_#{categoria.id}", categoria.nombre, class: "form-check-label" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+          
+      </div>
     </div>
   </div>
 
@@ -163,16 +180,18 @@
     <%= form.submit "Guardar Campeonato", class: "btn btn-primary" %>
   </div>
 <% end %>
-
 <script>
-  // Código para agregar nuevos tipos de inscripción dinámicamente
+  // Agregar nuevo tipo inscripción
   document.getElementById('agregar-tipo').addEventListener('click', function() {
     const container = document.getElementById('tipos-inscripcion-container');
     const count = container.querySelectorAll('.tipo-inscripcion').length + 1;
-    const nuevo = document.createElement('div');
-    nuevo.classList.add('mb-3', 'border', 'p-3', 'rounded', 'tipo-inscripcion');
-    nuevo.innerHTML = `
+
+    const div = document.createElement('div');
+    div.classList.add('mb-3', 'border', 'p-3', 'rounded', 'tipo-inscripcion');
+
+    div.innerHTML = `
       <h6>Tipo de Inscripción ${count}</h6>
+      <button type="button" class="btn btn-sm btn-danger float-end eliminar-tipo">Eliminar</button>
       <div class="mb-2">
         <label>Nombre</label>
         <input type="text" class="form-control" name="tipo_nombre[]">
@@ -190,87 +209,38 @@
         <textarea class="form-control" name="tipo_beneficios[]"></textarea>
       </div>
     `;
-    container.appendChild(nuevo);
+
+    container.appendChild(div);
   });
 
-  // Función para toggle categorías
-  function toggleSeleccion(categoria) {
-    const hombresCompetitiva = document.querySelectorAll('.masculino-competitiva');
-    const hombresSenior = document.querySelectorAll('.masculino-senior');
-    const mujeresCompetitiva = document.querySelectorAll('.femenino-competitiva');
-    const mujeresSenior = document.querySelectorAll('.femenino-senior');
-
-    switch (categoria) {
-      case 'masculino-competitiva':
-        hombresCompetitiva.forEach(chk => chk.checked = !chk.checked);
-        break;
-      case 'masculino-senior':
-        hombresSenior.forEach(chk => chk.checked = !chk.checked);
-        break;
-      case 'femenino-competitiva':
-        mujeresCompetitiva.forEach(chk => chk.checked = !chk.checked);
-        break;
-      case 'femenino-senior':
-        mujeresSenior.forEach(chk => chk.checked = !chk.checked);
-        break;
-      case 'todos':
-        hombresCompetitiva.forEach(chk => chk.checked = true);
-        hombresSenior.forEach(chk => chk.checked = true);
-        mujeresCompetitiva.forEach(chk => chk.checked = true);
-        mujeresSenior.forEach(chk => chk.checked = true);
-        break;
+  // Eliminar tipo inscripción
+  document.getElementById('tipos-inscripcion-container').addEventListener('click', function(event) {
+    if(event.target.classList.contains('eliminar-tipo')) {
+      const tipoDiv = event.target.closest('.tipo-inscripcion');
+      tipoDiv.remove();
+      // Re-numerar títulos
+      const tipos = document.querySelectorAll('.tipo-inscripcion h6');
+      tipos.forEach((h6, index) => {
+        h6.textContent = `Tipo de Inscripción ${index + 1}`;
+      });
     }
+  });
+</script>
+
+
+
+<script>
+  // Función para seleccionar/deseleccionar checkboxes según grupo
+  function toggleCheckboxes(group, select) {
+    let checkboxes;
+    if (group === 'all') {
+      checkboxes = document.querySelectorAll('.form-check-input');
+    } else if (group === 'hombres') {
+      checkboxes = document.querySelectorAll('.form-check-input.hombres');
+    } else if (group === 'mujeres') {
+      checkboxes = document.querySelectorAll('.form-check-input.mujeres');
+    }
+
+    checkboxes.forEach(cb => cb.checked = select);
   }
-
-  // FullCalendar Setup
-  document.addEventListener('DOMContentLoaded', function() {
-    var calendarEl = document.getElementById('calendar');
-    var horariosBloqueadosInput = document.getElementById('horarios_bloqueados_json');
-    
-    // Parse existing horarios bloqueados from form hidden input or empty array
-    var existingEvents = [];
-    try {
-      existingEvents = JSON.parse(horariosBloqueadosInput.value) || [];
-    } catch {
-      existingEvents = [];
-    }
-
-    var calendar = new FullCalendar.Calendar(calendarEl, {
-      initialView: 'timeGridWeek',
-      selectable: true,
-      nowIndicator: true,
-      locale: 'es',
-      headerToolbar: {
-        left: 'prev,next today',
-        center: 'title',
-        right: 'timeGridWeek,timeGridDay'
-      },
-      events: existingEvents,
-      select: function(info) {
-        var title = prompt('Bloquear horario. Motivo (opcional):');
-        if (title) {
-          var newEvent = {
-            title: title,
-            start: info.startStr,
-            end: info.endStr,
-            allDay: false,
-            backgroundColor: '#ff0000',
-            borderColor: '#ff0000'
-          };
-          calendar.addEvent(newEvent);
-          existingEvents.push(newEvent);
-          horariosBloqueadosInput.value = JSON.stringify(existingEvents);
-        }
-        calendar.unselect();
-      },
-      eventClick: function(info) {
-        if(confirm(`¿Eliminar este bloqueo "${info.event.title}"?`)) {
-          info.event.remove();
-          existingEvents = existingEvents.filter(e => !(e.start === info.event.startStr && e.end === info.event.endStr && e.title === info.event.title));
-          horariosBloqueadosInput.value = JSON.stringify(existingEvents);
-        }
-      }
-    });
-    calendar.render();
-  });
 </script>
