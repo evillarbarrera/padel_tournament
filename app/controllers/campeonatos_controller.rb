@@ -72,7 +72,10 @@ class CampeonatosController < ApplicationController
   private
 
   def set_campeonato
-    @campeonato = Campeonato.includes(:tipo_inscripcions, :categorias).find(params[:id])
+
+    @campeonato = Campeonato.includes(inscripciones: [:user, :categoria]).find(params[:id])
+
+
   end
 
 def campeonato_params

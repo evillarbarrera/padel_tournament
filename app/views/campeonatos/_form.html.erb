@@ -133,7 +133,7 @@
 
 
     <!-- Categorías -->
-    <div class="tab-pane fade" id="categorias" role="tabpanel" aria-labelledby="categorias-tab">
+    <div class="tab-pane fade show active" id="categorias" role="tabpanel" aria-labelledby="categorias-tab">
         <h5 class="mb-3">Selecciona las categorías del campeonato</h5>
         <div class="mb-4 d-flex flex-wrap gap-2">
           <button type="button" class="btn btn-sm btn-primary mb-2" onclick="toggleCheckboxes('all', true)">Seleccionar todos</button>
@@ -143,59 +143,64 @@
 
         </div>
 
-        <div class="row">
+       
         
         <div class="row">
-        <!-- Categorías Mujeres a la izquierda -->
-        <div class="col-md-6">
-          <h4>Categorías Mujeres</h4>
-          <button type="button" class="btn btn-sm btn-primary mb-2" onclick="toggleCheckboxes('mujeres', true)">Seleccionar todo</button>
-          <button type="button" class="btn btn-sm btn-secondary mb-2" onclick="toggleCheckboxes('mujeres', false)">Deseleccionar todo</button>
+          <!-- Categorías Mujeres a la izquierda -->
+          <div class="col-md-6">
+            <h4>Categorías Mujeres</h4>
+            <button type="button" class="btn btn-sm btn-primary mb-2" onclick="toggleCheckboxes('mujeres', true)">Seleccionar todo</button>
+            <button type="button" class="btn btn-sm btn-secondary mb-2" onclick="toggleCheckboxes('mujeres', false)">Deseleccionar todo</button>
 
-          <% @categorias.where(sexo: 'Mujeres').each do |categoria| %>
-            <div class="form-check">
-              <%= check_box_tag "campeonato[categoria_ids][]", categoria.id, @campeonato.categoria_ids.include?(categoria.id), id: "categoria_#{categoria.id}", class: "form-check-input mujeres" %>
-              <%= label_tag "categoria_#{categoria.id}", categoria.nombre, class: "form-check-label" %>
-            </div>
-          <% end %>
-        </div>
+            <% @categorias.where(sexo: 'Mujeres').each do |categoria| %>
+              <div class="form-check">
+                <%= check_box_tag "campeonato[categoria_ids][]", categoria.id, @campeonato.categoria_ids.include?(categoria.id), id: "categoria_#{categoria.id}", class: "form-check-input mujeres" %>
+                <%= label_tag "categoria_#{categoria.id}", categoria.nombre, class: "form-check-label" %>
+              </div>
+            <% end %>
+          </div>
 
-        <!-- Categorías Hombres a la derecha -->
-        <div class="col-md-6">
-          <h4>Categorías Hombres</h4>
-          <button type="button" class="btn btn-sm btn-primary mb-2" onclick="toggleCheckboxes('hombres', true)">Seleccionar todo</button>
-          <button type="button" class="btn btn-sm btn-secondary mb-2" onclick="toggleCheckboxes('hombres', false)">Deseleccionar todo</button>
+          <!-- Categorías Hombres a la derecha -->
+          <div class="col-md-6">
+            <h4>Categorías Hombres</h4>
+            <button type="button" class="btn btn-sm btn-primary mb-2" onclick="toggleCheckboxes('hombres', true)">Seleccionar todo</button>
+            <button type="button" class="btn btn-sm btn-secondary mb-2" onclick="toggleCheckboxes('hombres', false)">Deseleccionar todo</button>
 
-          <% @categorias.where(sexo: 'Hombres').each do |categoria| %>
-            <div class="form-check">
-              <%= check_box_tag "campeonato[categoria_ids][]", categoria.id, @campeonato.categoria_ids.include?(categoria.id), id: "categoria_#{categoria.id}", class: "form-check-input hombres" %>
-              <%= label_tag "categoria_#{categoria.id}", categoria.nombre, class: "form-check-label" %>
-            </div>
-          <% end %>
+            <% @categorias.where(sexo: 'Hombres').each do |categoria| %>
+              <div class="form-check">
+                <%= check_box_tag "campeonato[categoria_ids][]", categoria.id, @campeonato.categoria_ids.include?(categoria.id), id: "categoria_#{categoria.id}", class: "form-check-input hombres" %>
+                <%= label_tag "categoria_#{categoria.id}", categoria.nombre, class: "form-check-label" %>
+              </div>
+            <% end %>
+          </div>
         </div>
     </div>
 
+    <!-- Inscripciones -->
     <div class="tab-pane fade" id="inscripciones" role="tabpanel" aria-labelledby="inscripciones-tab">
-      <table>
-        <thead>
-          <tr>
-            <th>Jugador</th>
-            <th>Categoría</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% @campeonato.inscripcions.each do |inscripcion| %>
-            <tr>
-              <td><%= inscripcion.jugador %></td>
-              <td><%= inscripcion.categoria %></td>
-            </tr>
+          <% if @campeonato.inscripciones.any? %>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Jugador</th>
+                  <th>Categoría</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @campeonato.inscripciones.each do |inscripcion| %>
+                  <tr>
+                    <td><%= inscripcion.user.nombre %></td>
+                    <td><%= inscripcion.categoria.nombre %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          <% else %>
+            <p>No hay inscripciones registradas.</p>
           <% end %>
-        </tbody>
-      </table>
+        </div>
     </div>
-          
-      </div>
-    </div>
+    
   </div>
 
   <div class="mt-4">
