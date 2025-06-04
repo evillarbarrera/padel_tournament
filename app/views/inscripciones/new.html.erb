@@ -149,7 +149,7 @@
   <h1>Inscripcion</h1>
 
   <% if user_signed_in? %>
-    <% if current_user.role == 'jugador' %>
+    <% if current_user.role.nombre == 'jugador' %>
       <div class="card">
         <div class="card-header">
           <%# Mostrar foto del campeonato si existe %>
