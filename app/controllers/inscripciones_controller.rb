@@ -5,29 +5,45 @@ class InscripcionesController < ApplicationController
     def new
     @inscripcion = Inscripcion.new
     if params[:campeonato_id].present?
-        @campeonato = Campeonato.find(params[:campeonato_id])
-        @categorias = @campeonato.categorias
-        @tipos_inscripcion = @campeonato.tipo_inscripcions
+         @campeonatos = Campeonato.all
+        @tipos_inscripcion = TipoInscripcion.all
+        @categorias = Categoria.all  # <--- Aquí defines @categorias
+        @campeonato = Campeonato.first # o la lógica para asignar @campeonato
     else
         @categorias = Categoria.all
         @tipos_inscripcion = TipoInscripcion.all
     end
     end
 
-
-
-  def create
-    @inscripcion = Inscripcion.new(inscripcion_params)
-    @inscripcion.user = current_user
-
-    if @inscripcion.save
-      redirect_to root_path, notice: "Inscripción creada con éxito."
-    else
-      @campeonatos = Campeonato.all
-      @tipos_inscripcion = TipoInscripcion.all
-      render :new
+    def show
+        @inscripcion = Inscripcion.find(params[:id])
     end
-  end
+
+    def create
+        @inscripcion = Inscripcion.new(inscripcion_params)
+        @inscripcion.user = current_user
+        @campeonato = Campeonato.find_by(id: @inscripcion.campeonato_id)
+        @categorias = Categoria.all  # <--- También aquí, si vuelves a renderizar :new
+        @campeonatos = Campeonato.all
+        @tipos_inscripcion = TipoInscripcion.all
+
+        
+        if Inscripcion.exists?(user_id: current_user.id, campeonato_id: @inscripcion.campeonato_id, categoria_id: @inscripcion.categoria_id)
+            @campeonatos = Campeonato.all
+            @tipos_inscripcion = TipoInscripcion.all
+            @categorias = Categoria.all
+            @error_modal = true
+            render :new
+        elsif @inscripcion.save
+            redirect_to inscripcione_path(@inscripcion), notice: "Inscripción creada con éxito."
+        else
+            @campeonatos = Campeonato.all
+            @tipos_inscripcion = TipoInscripcion.all
+            @categorias = Categoria.all
+            render :new
+        end
+
+    end   
 
   private
 

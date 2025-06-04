@@ -1,0 +1,138 @@
+
+
+<div class="background-container">
+  <div class="ticket">
+    <div class="ticket-header">
+      <h2>Confirmación de Inscripción</h2>
+      <p class="ticket-date"><%= @inscripcion.created_at.strftime("%d/%m/%Y %H:%M") %></p>
+    </div>
+
+    <div class="ticket-body">
+      <p><span>Jugador:</span> <%= @inscripcion.user.nombre %></p>
+      <p><span>Campeonato:</span> <%= @inscripcion.campeonato.nombre %></p>
+      <p><span>Categoría:</span> <%= @inscripcion.categoria.nombre %></p>
+      <p><span>Tipo de Inscripción:</span> <%= @inscripcion.tipo_inscripcion.nombre %></p>
+      <p><span>Monto:</span> $<%= number_with_precision(@inscripcion.tipo_inscripcion.monto, precision: 0, delimiter: ",") %></p>
+    </div>
+
+    <div class="ticket-footer">
+
+    <%= link_to 'Volver al inicio', root_path, class: "btn btn-primary mt-3" %> 
+      <p>¡Gracias por inscribirte! Te esperamos en el campeonato.</p>
+    </div>
+  </div>
+</div>
+
+
+<style>
+  h1 {
+    text-align: center;
+    color: #fff;
+    margin-bottom: 2rem;
+    font-weight: 700;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-shadow: 1px 1px 5px rgba(0,0,0,0.7);
+  }
+
+  .background-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; 
+    background-image: url('https://media.istockphoto.com/id/1351925141/es/foto/p%C3%A1del-deporte-de-palas.jpg?s=612x612&w=0&k=20&c=n8JAb_uA7k1mjiC96FD4j4hSCM6RFfDP93Dzb44Umbg=');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    padding: 2rem;
+  }
+
+  .ticket {
+    max-width: 400px;
+    background: rgba(255, 255, 255, 0.9); /* Fondo blanco semi-transparente para mejor lectura */
+    padding: 2rem 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #34495e;
+    position: relative;
+    border: 2px dashed #f1c40f;
+  }
+
+  /* Borde tipo "ticket" con cortes en esquinas */
+  .ticket::before, .ticket::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    border: 2px dashed #f1c40f;
+  }
+  .ticket::before {
+    top: -12px;
+    left: -12px;
+  }
+  .ticket::after {
+    bottom: -12px;
+    right: -12px;
+  }
+
+  .ticket-header {
+    border-bottom: 2px solid #f1c40f;
+    padding-bottom: 0.8rem;
+    margin-bottom: 1.2rem;
+    text-align: center;
+  }
+
+  .ticket-header h2 {
+    margin: 0;
+    color: #f1c40f;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+  }
+
+  .ticket-date {
+    font-size: 0.9rem;
+    color: #7f8c8d;
+    margin-top: 0.2rem;
+  }
+
+  .ticket-body p {
+    font-size: 1rem;
+    margin: 0.5rem 0;
+  }
+
+  .ticket-body span {
+    font-weight: 700;
+    color: #2980b9;
+  }
+
+  .ticket-footer {
+    margin-top: 2rem;
+    text-align: center;
+    font-style: italic;
+    color: #95a5a6;
+    font-size: 0.9rem;
+  }
+
+  /* Botón */
+  .btn-primary {
+    display: block;
+    width: 150px;
+    margin: 2rem auto 0 auto;
+    padding: 0.6rem 1.2rem;
+    font-weight: 700;
+    background-color: #2980b9;
+    color: white;
+    border-radius: 8px;
+    border: none;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+  }
+
+  .btn-primary:hover {
+    background-color: #1c5980;
+    color: white;
+  }
+</style>

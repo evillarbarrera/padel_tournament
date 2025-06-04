@@ -153,11 +153,13 @@
       <div class="card">
         <div class="card-header">
         
-          <% if @campeonato.foto.attached? %>
-            <%= image_tag @campeonato.foto.variant(resize_to_limit: [150, 150]), alt: @campeonato.nombre %>
-          <% else %>
-            <%= image_tag 'https://golfsantodomingo.cl/wp-content/uploads/2023/01/torneo-padel.png', class: "campeonato-img" %>
-          <% end %>
+        <div class="card-header">
+            <% if @campeonato && @campeonato.foto.attached? %>
+                <%= image_tag @campeonato.foto.variant(resize_to_limit: [150, 150]), alt: @campeonato.nombre %>
+            <% else %>
+                <%= image_tag 'https://golfsantodomingo.cl/wp-content/uploads/2023/01/torneo-padel.png', class: "campeonato-img" %>
+            <% end %>
+        </div>
 
           <h2><%= @campeonato.nombre %></h2>
         </div>
@@ -213,3 +215,40 @@
     </div>
   <% end %>
 </div>
+
+<% if @error_modal %>
+  <div class="modal fade show d-block" id="errorModal" tabindex="-1" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content shadow-lg">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title mx-auto">Error de inscripción</h5>
+        </div>
+        <div class="modal-body text-center">
+          <p>Ya estás inscrito en este campeonato para esta categoría.</p>
+        </div>
+        <div class="modal-footer justify-content-center">
+          <button class="btn btn-outline-danger" onclick="cerrarModal()">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop fade show" id="modalBackdrop"></div>
+
+  <script>
+    function cerrarModal() {
+      const modal = document.getElementById('errorModal');
+        const backdrop = document.getElementById('modalBackdrop');
+
+        if (modal) {
+          modal.classList.remove('show', 'd-block');
+          modal.style.display = 'none';
+        }
+
+        if (backdrop) {
+          backdrop.classList.remove('show');
+          backdrop.parentNode.removeChild(backdrop);
+        }
+
+    }
+  </script>
+<% end %>
