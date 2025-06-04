@@ -7,6 +7,7 @@ Rails.application.routes.draw do
   root "home#index"
   
   resources :users, only: [:show, :edit, :update]
+  resources :inscripciones, only: [:new, :create]
 
   get 'home/publicos', to: 'home#publicos', as: 'home_publicos'
   resources :campeonatos

@@ -6,9 +6,13 @@ class Campeonato < ApplicationRecord
   has_many :campeonato_categorias, dependent: :destroy
   has_many :categorias, through: :campeonato_categorias
   accepts_nested_attributes_for :campeonato_categorias, allow_destroy: true
+
   # Asociación correcta para tipos de inscripción
   has_many :tipo_inscripcions, dependent: :destroy
   accepts_nested_attributes_for :tipo_inscripcions, allow_destroy: true
+
+  # Asociacion correcta con inscripciones
+  has_many :inscripciones, dependent: :destroy, class_name: 'Inscripcion'
 
   # Validaciones
   validates :nombre, presence: true

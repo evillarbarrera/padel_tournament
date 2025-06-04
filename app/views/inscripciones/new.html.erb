@@ -1,0 +1,214 @@
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: url('https://static.vecteezy.com/system/resources/previews/052/870/865/non_2x/black-professional-paddle-tennis-racket-and-ball-with-natural-lighting-on-blue-background-horizontal-sport-theme-poster-greeting-cards-headers-website-and-app-photo.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+  }
+
+  /* Fondo oscuro semitransparente para mejorar legibilidad */
+  .overlay {
+    background-color: rgba(0, 0, 0, 0.55);
+    min-height: 100vh;
+    padding: 3rem 1rem 4rem;
+  }
+
+  h1 {
+    text-align: center;
+    color: #f1c40f; /* Amarillo brillante para destacar */
+    margin-bottom: 3rem;
+    font-size: 3rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 6px rgba(0,0,0,0.7);
+  }
+
+  .card {
+    max-width: 600px;
+    margin: 0 auto 2rem;
+    background: #fff;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .card-header img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 15px;
+    border: 3px solid #f1c40f;
+    box-shadow: 0 0 10px #f1c40f;
+  }
+
+  .card-header h2 {
+    margin: 0;
+    color: #34495e;
+    font-size: 1.8rem;
+  }
+
+  .card p {
+    color: #555;
+    font-size: 1rem;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+  }
+
+  .info-label {
+    font-weight: 700;
+    color: #2980b9;
+  }
+
+  form div {
+    margin-bottom: 1.25rem;
+  }
+
+  label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+    color: #34495e;
+  }
+
+  select, input[type="submit"] {
+    width: 100%;
+    padding: 0.5rem 0.7rem;
+    font-size: 1rem;
+    border-radius: 6px;
+    border: 1.8px solid #bdc3c7;
+    transition: border-color 0.3s ease;
+  }
+
+  select:focus {
+    border-color: #2980b9;
+    outline: none;
+  }
+
+  input[type="submit"] {
+    background-color: #2980b9;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-weight: 700;
+    transition: background-color 0.3s ease;
+  }
+
+  input[type="submit"]:hover {
+    background-color: #1c5980;
+  }
+
+  .error-messages {
+    background-color: #fdecea;
+    border: 1px solid #f5c6cb;
+    color: #a94442;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-top: 1rem;
+  }
+
+  .error-messages ul {
+    margin: 0;
+    padding-left: 1.2rem;
+  }
+
+  .info-text {
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 1.1rem;
+    color: #ecf0f1;
+  }
+
+  .auth-links {
+    text-align: center;
+    margin-top: 1rem;
+  }
+
+  .auth-links a {
+    margin: 0 0.5rem;
+    text-decoration: none;
+    color: #f1c40f;
+    font-weight: 600;
+  }
+
+  .auth-links a:hover {
+    text-decoration: underline;
+  }
+</style>
+
+<div class="overlay">
+  <h1>Inscripcion</h1>
+
+  <% if user_signed_in? %>
+    <% if current_user.role != 'jugador' %>
+      <div class="card">
+        <div class="card-header">
+          <%# Mostrar foto del campeonato si existe %>
+          <% if @campeonato.foto.attached? %>
+            <%= image_tag @campeonato.foto.variant(resize_to_limit: [150, 150]), alt: @campeonato.nombre %>
+          <% else %>
+            <img src="/images/default-campeonato.png" alt="Campeonato" />
+          <% end %>
+          <h2><%= @campeonato.nombre %></h2>
+        </div>
+
+        <p><span class="info-label">Fecha inicio:</span> <%= @campeonato.fecha_inicio.strftime("%d/%m/%Y") %></p>
+        <p><span class="info-label">Fecha término:</span> <%= @campeonato.fecha_termino.strftime("%d/%m/%Y") %></p>
+
+        <% if @campeonato.descripcion.present? %>
+          <p><span class="info-label">Descripción:</span> <%= @campeonato.descripcion %></p>
+        <% end %>
+
+        <% if @campeonato.reglas.present? %>
+          <p><span class="info-label">Reglas:</span> <%= simple_format(@campeonato.reglas) %></p>
+        <% end %>
+
+        <%= form_with model: @inscripcion, url: inscripciones_path, local: true do |f| %>
+          <%= f.hidden_field :campeonato_id, value: @campeonato.id %>
+
+          <div>
+            <%= f.label :categoria_id, "Categoría" %>
+            <%= f.collection_select :categoria_id, @categorias, :id, :nombre, prompt: "Seleccione una categoría" %>
+          </div>
+
+          <div>
+            <%= f.label :tipo_inscripcion_id, "Tipo de Inscripción" %>
+            <%= f.collection_select :tipo_inscripcion_id, @tipos_inscripcion, :id, :nombre, prompt: "Seleccione un tipo" %>
+          </div>
+
+          <div>
+            <%= f.submit "Inscribirse" %>
+          </div>
+        <% end %>
+
+        <% if @inscripcion.errors.any? %>
+          <div class="error-messages">
+            <h3>Errores al guardar la inscripción:</h3>
+            <ul>
+              <% @inscripcion.errors.full_messages.each do |msg| %>
+                <li><%= msg %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="info-text">Solo los usuarios con rol <strong>jugador</strong> pueden inscribirse.</p>
+    <% end %>
+  <% else %>
+    <p class="info-text">Debes estar registrado para inscribirte.</p>
+    <div class="auth-links">
+      <%= link_to "Registrarse", new_user_registration_path %> |
+      <%= link_to "Iniciar sesión", new_user_session_path %>
+    </div>
+  <% end %>
+</div>

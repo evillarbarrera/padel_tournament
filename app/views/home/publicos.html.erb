@@ -128,7 +128,9 @@
             <h6 class="campeonato-titulo"><%= campeonato.tipo %></h6>
             <p class="campeonato-detalle"><strong>Club:</strong> <%= campeonato.club.nombre if campeonato.club %></p>
             <p class="campeonato-detalle"><strong>Inicio:</strong> <%= campeonato.fecha_inicio.strftime('%d/%m/%Y') %></p>
-            <button class="campeonato-btn" type="button">Inscribirse</button>
+            <%= link_to "Inscribirse", new_inscripcione_path(campeonato_id: campeonato.id), class: "campeonato-btn" %>
+
+
           </div>
         </div>
       </div>

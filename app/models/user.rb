@@ -8,6 +8,9 @@ class User < ApplicationRecord
   has_one_attached :foto
   accepts_nested_attributes_for :role
 
+  has_many :inscripcions
+
+
   def club?
     role&.nombre == "club" || role&.nombre == "administrador"
   end

@@ -9,6 +9,9 @@
     <li class="nav-item" role="presentation">
       <a class="nav-link" id="categorias-tab" data-bs-toggle="tab" href="#categorias" role="tab" aria-controls="categorias" aria-selected="false">Categorías</a>
     </li>
+       <li class="nav-item" role="presentation">
+      <a class="nav-link" id="inscripciones-tab" data-bs-toggle="tab" href="#inscripciones" role="tab" aria-controls="inscripciones" aria-selected="false">Inscripciones</a>
+    </li>
   </ul>
 
   <div class="tab-content" id="campeonatoTabsContent">
@@ -72,105 +75,124 @@
       </div>
     </div>
 
-   <!-- Tipos Inscripción -->
-<div class="tab-pane fade" id="tipos" role="tabpanel" aria-labelledby="tipos-tab">
-  <div id="tipos-inscripcion-container">
-    <% if @campeonato.tipo_inscripcions.any? %>
-      <% @campeonato.tipo_inscripcions.each_with_index do |tipo, index| %>
-        <div class="mb-3 border p-3 rounded tipo-inscripcion">
-          <h6>Tipo de Inscripción <%= index + 1 %></h6>
-          <button type="button" class="btn btn-sm btn-danger float-end eliminar-tipo">Eliminar</button>
+    <!-- Tipos Inscripción -->
+    <div class="tab-pane fade" id="tipos" role="tabpanel" aria-labelledby="tipos-tab">
+      <div id="tipos-inscripcion-container">
+        <% if @campeonato.tipo_inscripcions.any? %>
+          <% @campeonato.tipo_inscripcions.each_with_index do |tipo, index| %>
+            <div class="mb-3 border p-3 rounded tipo-inscripcion">
+              <h6>Tipo de Inscripción <%= index + 1 %></h6>
+              <button type="button" class="btn btn-sm btn-danger float-end eliminar-tipo">Eliminar</button>
 
-          <!-- Campo oculto con el ID -->
-          <input type="hidden" name="tipo_id[]" value="<%= tipo.id %>">
+              <!-- Campo oculto con el ID -->
+              <input type="hidden" name="tipo_id[]" value="<%= tipo.id %>">
 
-          <div class="mb-2">
-            <label>Nombre</label>
-            <input type="text" class="form-control" name="tipo_nombre[]" value="<%= tipo.nombre %>">
+              <div class="mb-2">
+                <label>Nombre</label>
+                <input type="text" class="form-control" name="tipo_nombre[]" value="<%= tipo.nombre %>">
+              </div>
+              <div class="mb-2">
+                <label>Monto</label>
+                <input type="number" class="form-control" name="tipo_monto[]" value="<%= tipo.monto %>">
+              </div>
+              <div class="mb-2">
+                <label>Fecha límite de pago</label>
+                <input type="date" class="form-control" name="tipo_fecha_limite[]" value="<%= tipo.fecha_limite_pago %>">
+              </div>
+              <div class="mb-2">
+                <label>Beneficios</label>
+                <textarea class="form-control" name="tipo_beneficios[]"><%= tipo.beneficios %></textarea>
+              </div>
+            </div>
+          <% end %>
+        <% else %>
+          <div class="mb-3 border p-3 rounded tipo-inscripcion">
+            <h6>Tipo de Inscripción 1</h6>
+            <button type="button" class="btn btn-sm btn-danger float-end eliminar-tipo">Eliminar</button>
+            <div class="mb-2">
+              <label>Nombre</label>
+              <input type="text" class="form-control" name="tipo_nombre[]">
+            </div>
+            <div class="mb-2">
+              <label>Monto</label>
+              <input type="number" class="form-control" name="tipo_monto[]">
+            </div>
+            <div class="mb-2">
+              <label>Fecha límite de pago</label>
+              <input type="date" class="form-control" name="tipo_fecha_limite[]">
+            </div>
+            <div class="mb-2">
+              <label>Beneficios</label>
+              <textarea class="form-control" name="tipo_beneficios[]"></textarea>
+            </div>
           </div>
-          <div class="mb-2">
-            <label>Monto</label>
-            <input type="number" class="form-control" name="tipo_monto[]" value="<%= tipo.monto %>">
-          </div>
-          <div class="mb-2">
-            <label>Fecha límite de pago</label>
-            <input type="date" class="form-control" name="tipo_fecha_limite[]" value="<%= tipo.fecha_limite_pago %>">
-          </div>
-          <div class="mb-2">
-            <label>Beneficios</label>
-            <textarea class="form-control" name="tipo_beneficios[]"><%= tipo.beneficios %></textarea>
-          </div>
-        </div>
-      <% end %>
-    <% else %>
-      <div class="mb-3 border p-3 rounded tipo-inscripcion">
-        <h6>Tipo de Inscripción 1</h6>
-        <button type="button" class="btn btn-sm btn-danger float-end eliminar-tipo">Eliminar</button>
-        <div class="mb-2">
-          <label>Nombre</label>
-          <input type="text" class="form-control" name="tipo_nombre[]">
-        </div>
-        <div class="mb-2">
-          <label>Monto</label>
-          <input type="number" class="form-control" name="tipo_monto[]">
-        </div>
-        <div class="mb-2">
-          <label>Fecha límite de pago</label>
-          <input type="date" class="form-control" name="tipo_fecha_limite[]">
-        </div>
-        <div class="mb-2">
-          <label>Beneficios</label>
-          <textarea class="form-control" name="tipo_beneficios[]"></textarea>
-        </div>
+        <% end %>
       </div>
-    <% end %>
-  </div>
-  <button type="button" class="btn btn-outline-primary mt-2" id="agregar-tipo">+ Agregar tipo</button>
-</div>
+      <button type="button" class="btn btn-outline-primary mt-2" id="agregar-tipo">+ Agregar tipo</button>
+    </div>
 
 
     <!-- Categorías -->
     <div class="tab-pane fade" id="categorias" role="tabpanel" aria-labelledby="categorias-tab">
-      <h5 class="mb-3">Selecciona las categorías del campeonato</h5>
-      <div class="mb-4 d-flex flex-wrap gap-2">
-        <button type="button" class="btn btn-sm btn-primary mb-2" onclick="toggleCheckboxes('all', true)">Seleccionar todos</button>
-          <button type="button" class="btn btn-sm btn-secondary mb-2" onclick="toggleCheckboxes('hombres', true)">Seleccionar todos hombres</button>
-          <button type="button" class="btn btn-sm btn-secondary mb-2" onclick="toggleCheckboxes('mujeres', true)">Seleccionar todos mujeres</button>
-          <button type="button" class="btn btn-sm btn-danger mb-2" onclick="toggleCheckboxes('all', false)">Deseleccionar todos</button>
+        <h5 class="mb-3">Selecciona las categorías del campeonato</h5>
+        <div class="mb-4 d-flex flex-wrap gap-2">
+          <button type="button" class="btn btn-sm btn-primary mb-2" onclick="toggleCheckboxes('all', true)">Seleccionar todos</button>
+            <button type="button" class="btn btn-sm btn-secondary mb-2" onclick="toggleCheckboxes('hombres', true)">Seleccionar todos hombres</button>
+            <button type="button" class="btn btn-sm btn-secondary mb-2" onclick="toggleCheckboxes('mujeres', true)">Seleccionar todos mujeres</button>
+            <button type="button" class="btn btn-sm btn-danger mb-2" onclick="toggleCheckboxes('all', false)">Deseleccionar todos</button>
 
-      </div>
+        </div>
 
-      <div class="row">
-       
-<div class="row">
-  <!-- Categorías Mujeres a la izquierda -->
-  <div class="col-md-6">
-    <h4>Categorías Mujeres</h4>
-    <button type="button" class="btn btn-sm btn-primary mb-2" onclick="toggleCheckboxes('mujeres', true)">Seleccionar todo</button>
-    <button type="button" class="btn btn-sm btn-secondary mb-2" onclick="toggleCheckboxes('mujeres', false)">Deseleccionar todo</button>
+        <div class="row">
+        
+        <div class="row">
+        <!-- Categorías Mujeres a la izquierda -->
+        <div class="col-md-6">
+          <h4>Categorías Mujeres</h4>
+          <button type="button" class="btn btn-sm btn-primary mb-2" onclick="toggleCheckboxes('mujeres', true)">Seleccionar todo</button>
+          <button type="button" class="btn btn-sm btn-secondary mb-2" onclick="toggleCheckboxes('mujeres', false)">Deseleccionar todo</button>
 
-    <% @categorias.where(sexo: 'Mujeres').each do |categoria| %>
-      <div class="form-check">
-        <%= check_box_tag "campeonato[categoria_ids][]", categoria.id, @campeonato.categoria_ids.include?(categoria.id), id: "categoria_#{categoria.id}", class: "form-check-input mujeres" %>
-        <%= label_tag "categoria_#{categoria.id}", categoria.nombre, class: "form-check-label" %>
-      </div>
-    <% end %>
-  </div>
+          <% @categorias.where(sexo: 'Mujeres').each do |categoria| %>
+            <div class="form-check">
+              <%= check_box_tag "campeonato[categoria_ids][]", categoria.id, @campeonato.categoria_ids.include?(categoria.id), id: "categoria_#{categoria.id}", class: "form-check-input mujeres" %>
+              <%= label_tag "categoria_#{categoria.id}", categoria.nombre, class: "form-check-label" %>
+            </div>
+          <% end %>
+        </div>
 
-  <!-- Categorías Hombres a la derecha -->
-  <div class="col-md-6">
-    <h4>Categorías Hombres</h4>
-    <button type="button" class="btn btn-sm btn-primary mb-2" onclick="toggleCheckboxes('hombres', true)">Seleccionar todo</button>
-    <button type="button" class="btn btn-sm btn-secondary mb-2" onclick="toggleCheckboxes('hombres', false)">Deseleccionar todo</button>
+        <!-- Categorías Hombres a la derecha -->
+        <div class="col-md-6">
+          <h4>Categorías Hombres</h4>
+          <button type="button" class="btn btn-sm btn-primary mb-2" onclick="toggleCheckboxes('hombres', true)">Seleccionar todo</button>
+          <button type="button" class="btn btn-sm btn-secondary mb-2" onclick="toggleCheckboxes('hombres', false)">Deseleccionar todo</button>
 
-    <% @categorias.where(sexo: 'Hombres').each do |categoria| %>
-      <div class="form-check">
-        <%= check_box_tag "campeonato[categoria_ids][]", categoria.id, @campeonato.categoria_ids.include?(categoria.id), id: "categoria_#{categoria.id}", class: "form-check-input hombres" %>
-        <%= label_tag "categoria_#{categoria.id}", categoria.nombre, class: "form-check-label" %>
-      </div>
-    <% end %>
-  </div>
-</div>
+          <% @categorias.where(sexo: 'Hombres').each do |categoria| %>
+            <div class="form-check">
+              <%= check_box_tag "campeonato[categoria_ids][]", categoria.id, @campeonato.categoria_ids.include?(categoria.id), id: "categoria_#{categoria.id}", class: "form-check-input hombres" %>
+              <%= label_tag "categoria_#{categoria.id}", categoria.nombre, class: "form-check-label" %>
+            </div>
+          <% end %>
+        </div>
+    </div>
+
+    <div class="tab-pane fade" id="inscripciones" role="tabpanel" aria-labelledby="inscripciones-tab">
+      <table>
+        <thead>
+          <tr>
+            <th>Jugador</th>
+            <th>Categoría</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @campeonato.inscripcions.each do |inscripcion| %>
+            <tr>
+              <td><%= inscripcion.jugador %></td>
+              <td><%= inscripcion.categoria %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
           
       </div>
     </div>
