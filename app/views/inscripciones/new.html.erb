@@ -152,12 +152,13 @@
     <% if current_user.role.nombre == 'jugador' %>
       <div class="card">
         <div class="card-header">
-          <%# Mostrar foto del campeonato si existe %>
-          <% if @campeonato.foto.attached? %>
-            <%= image_tag @campeonato.foto.variant(resize_to_limit: [150, 150]), alt: @campeonato.nombre %>
+        
+          <% if campeonato.foto.attached? %>
+            <%= image_tag campeonato.foto, class: "campeonato-img" %>
           <% else %>
-            <img src="/images/default-campeonato.png" alt="Campeonato" />
+            <%= image_tag 'https://golfsantodomingo.cl/wp-content/uploads/2023/01/torneo-padel.png', class: "campeonato-img" %>
           <% end %>
+
           <h2><%= @campeonato.nombre %></h2>
         </div>
 
