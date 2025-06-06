@@ -28,11 +28,9 @@
   gap: 1.5rem;
 }
 
-
 .campeonato-item {
   width: 100%;
 }
-
 
 .campeonato-card {
   display: flex;
@@ -95,7 +93,30 @@
   background: linear-gradient(135deg, #0056b3, #003f7f);
 }
 
+.paginacion {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+  gap: 0.5rem;
+}
+
+.paginacion a,
+.paginacion span {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background: white;
+  color: #007bff;
+  text-decoration: none;
+}
+
+.paginacion .current {
+  font-weight: bold;
+  background: #007bff;
+  color: white;
+}
 </style>
+
 <div class="campeonatos-contenedor campeonatos-fondo">
   <h1 class="campeonatos-titulo">Campeonatos Disponibles</h1>
 
@@ -138,5 +159,8 @@
       </div>
     <% end %>
   </div>
-</div>
 
+  <div class="paginacion">
+    <%= paginate @campeonatos, params: { club_id: params[:club_id], tipo: params[:tipo] } %>
+  </div>
+</div>
