@@ -1,31 +1,96 @@
-<section class="vh-100 d-flex justify-content-center align-items-center" style="font-family: 'Oswald', sans-serif; background-image: 
-url('https://images.unsplash.com/photo-1526888935184-a82d2a4b7e67?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cGFkZWwlMjB0ZW5uaXN8ZW58MHx8MHx8fDA%3D'); background-size: cover; background-position: center; padding: 2rem;">
+<section class="vh-100" style="font-family: 'Oswald', sans-serif; background-image: url('https://images.unsplash.com/photo-1526888935184-a82d2a4b7e67?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cGFkZWwlMjB0ZW5uaXN8ZW58MHx8MHx8fDA%3D'); background-size: cover; background-position: center; padding: 2rem;">
+  <div class="container" style="max-width: 1100px;">
 
-  <div class="card bg-white border-0 shadow-lg p-5" style="max-width: 700px; width: 100%; border-radius: 20px;">
+    <!-- Menú de navegación -->
+    <nav class="mb-4">
+      <ul class="nav nav-tabs justify-content-center">
+        <li class="nav-item">
+          <a class="nav-link active" href="#campeonatos" data-bs-toggle="tab" role="tab" aria-selected="true">Campeonatos</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#entrenamientos" data-bs-toggle="tab" role="tab" aria-selected="false">Entrenamientos</a>
+        </li>
+      </ul>
+    </nav>
 
-    <h1 class="mb-4 text-center text-primary" style="font-size: 2.5rem;">Perfil de Usuario</h1>
+    <div class="card bg-white border-0 shadow-lg p-4 rounded-4">
+      <h1 class="text-primary text-center mb-4" style="font-size: 2.5rem;">Perfil de Usuario</h1>
 
-    <% if @user.role&.nombre == 'administrador' && @user.role.club.present? %>
-      <h3 class="mb-3 text-secondary">Información del Club</h3>
-      <p><strong>Nombre:</strong> <%= @user.role.club.nombre %></p>
-      <p><strong>Dirección:</strong> <%= @user.role.club.direccion %></p>
-      <p><strong>Teléfono:</strong> <%= @user.role.club.telefono %></p>
-      <p><strong>Email:</strong> <%= @user.role.club.email %></p>
-      <hr class="my-4" />
-    <% end %>
-    <div class="text-center mb-4">
-      <%= image_tag(url_for(@user.foto), alt: "Foto de perfil", class: "rounded-circle", width: 150, height: 150) if @user.foto.attached? %>
+      <div class="tab-content">
+
+        <!-- Pestaña Campeonatos -->
+        <div class="tab-pane fade show active" id="campeonatos" role="tabpanel">
+          <div class="row g-4">
+
+            <!-- Información Usuario Izquierda -->
+            <div class="col-md-5 border-end">
+              <% if @user.role&.nombre == 'administrador' && @user.role.club.present? %>
+                <h3 class="text-secondary">Información del Club</h3>
+                <p><strong>Nombre:</strong> <%= @user.role.club.nombre %></p>
+                <p><strong>Dirección:</strong> <%= @user.role.club.direccion %></p>
+                <p><strong>Teléfono:</strong> <%= @user.role.club.telefono %></p>
+                <p><strong>Email:</strong> <%= @user.role.club.email %></p>
+                <hr />
+              <% end %>
+
+              <div class="text-center mb-4">
+                <% if @user.foto.attached? %>
+                  <%= image_tag(url_for(@user.foto), alt: "Foto de perfil", class: "rounded-circle border border-3 border-primary", width: 160, height: 160) %>
+                <% else %>
+                  <div class="rounded-circle bg-secondary" style="width: 160px; height: 160px;"></div>
+                <% end %>
+              </div>
+
+              <h3 class="text-secondary">Información Personal</h3>
+              <p><strong>Nombre:</strong> <%= @user.nombre %></p>
+              <p><strong>Email:</strong> <%= @user.email %></p>
+              <p><strong>Teléfono:</strong> <%= @user.telefono %></p>
+              <p><strong>Categoría:</strong> <%= @user.categoria %></p>
+              <p><strong>Puntos:</strong> <%= @user.puntos %></p>
+
+              <div class="text-center mt-3">
+                <%= link_to "Editar Perfil", edit_user_path(@user), class: "btn btn-warning px-4 py-2 fw-bold rounded-pill shadow-sm" %>
+              </div>
+            </div>
+
+            <!-- Campeonatos Derecha -->
+            <div class="col-md-7">
+              <h3 class="text-secondary mb-3">Campeonatos Inscritos</h3>
+
+              <% if @user.inscripcions.any? %>
+                <% @user.inscripcions.includes(:campeonato).each do |inscripcion| %>
+                  <div class="card mb-3 p-3 bg-light rounded shadow-sm">
+                    <p><strong>Campeonato:</strong> <%= inscripcion.campeonato.nombre %></p>
+
+                    <% pareja = inscripcion.parejas_como_1.first || inscripcion.parejas_como_2.first %>
+
+                    <% if pareja.present? %>
+                      <p class="text-success fw-semibold mb-1">¡Tienes pareja asignada!</p>
+                      <% otro_insc = (pareja.inscripcion_1 == inscripcion) ? pareja.inscripcion_2 : pareja.inscripcion_1 %>
+                      <p><strong>Tu partner:</strong> <%= otro_insc.user.nombre %> (<%= pareja.estado %>)</p>
+                    <% else %>
+                      <p class="text-warning fw-semibold mb-1">Aún no tienes pareja para este campeonato.</p>
+                    <% end %>
+                  </div>
+                <% end %>
+              <% else %>
+                <p class="text-muted fst-italic">No estás inscrito en ningún campeonato.</p>
+              <% end %>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Pestaña Entrenamientos -->
+        <div class="tab-pane fade" id="entrenamientos" role="tabpanel">
+          <h3 class="text-secondary mb-3">Entrenamientos</h3>
+          <p>Aquí podrás ver y gestionar tus entrenamientos (funcionalidad en desarrollo).</p>
+        </div>
+
+      </div>
     </div>
-    <h3 class="mb-3 text-secondary">Información Personal</h3>
-    <p><strong>Nombre:</strong> <%= @user.nombre %></p>
-    <p><strong>Email:</strong> <%= @user.email %></p>
-    <p><strong>Teléfono:</strong> <%= @user.telefono %></p>
-    <p><strong>Categoría:</strong> <%= @user.categoria %></p>
-    <p><strong>Puntos:</strong> <%= @user.puntos %></p>
 
-    <div class="text-center mt-4">
-      <%= link_to "Editar Perfil", edit_user_path(@user), class: "btn btn-warning px-4 py-2 fw-bold rounded-pill shadow-sm" %>
-    </div>
   </div>
-  
 </section>
+
+<!-- No olvides tener Bootstrap JS incluido para el tab switching funcione correctamente -->

@@ -8,6 +8,7 @@ Rails.application.routes.draw do
   
   resources :users, only: [:show, :edit, :update]
   resources :inscripciones, only: [:new, :create, :index, :show]
+  resources :parejas, only: [:create]
 
 
   get 'home/publicos', to: 'home#publicos', as: 'home_publicos'

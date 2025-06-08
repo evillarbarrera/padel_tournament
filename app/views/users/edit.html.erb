@@ -1,36 +1,11 @@
-<section class="vh-100 d-flex justify-content-center align-items-center" style="font-family: 'Oswald', sans-serif; background-image: url('https://images.unsplash.com/photo-1526888935184-a82d2a4b7e67?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cGFkZWwlMjB0ZW5uaXN8ZW58MHx8MHx8fDA%3D'); background-size: cover; background-position: center; padding: 2rem;">
-  <div class="container" style="max-width: 900px;">
+<section class="vh-100 d-flex justify-content-center align-items-start" style="font-family: 'Oswald', sans-serif; background-image: url('https://images.unsplash.com/photo-1526888935184-a82d2a4b7e67?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cGFkZWwlMjB0ZW5uaXN8ZW58MHx8MHx8fDA%3D'); background-size: cover; background-position: center; padding: 2rem;">
+  <div class="container" style="max-width: 1200px;">
     <h1 class="text-center mb-4 text-white">Editar Perfil</h1>
 
     <%= form_with model: @user, local: true do |f| %>
       <div class="row g-4 bg-white rounded p-4 shadow">
 
-        <% if @user.role&.nombre == 'administrador' && @user.role.club.present? %>
-          <!-- Club -->
-          <div class="col-md-6">
-            <h3 class="text-primary">Información del Club</h3>
-            <%= fields_for :club, @user.role.club do |c| %>
-              <div class="mb-3">
-                <%= c.label :nombre, "Nombre del Club", class: "form-label" %>
-                <%= c.text_field :nombre, class: "form-control" %>
-              </div>
-              <div class="mb-3">
-                <%= c.label :direccion, class: "form-label" %>
-                <%= c.text_field :direccion, class: "form-control" %>
-              </div>
-              <div class="mb-3">
-                <%= c.label :telefono, class: "form-label" %>
-                <%= c.text_field :telefono, class: "form-control" %>
-              </div>
-              <div class="mb-3">
-                <%= c.label :email, class: "form-label" %>
-                <%= c.email_field :email, class: "form-control" %>
-              </div>
-            <% end %>
-          </div>
-        <% end %>
-
-        <!-- Usuario -->
+        <!-- Información del Usuario -->
         <div class="col-md-6">
           <h3 class="text-primary">Información del Usuario</h3>
           <div class="mb-3">
@@ -49,9 +24,71 @@
             <%= f.label :categoria, class: "form-label" %>
             <%= f.select :categoria, ["Primera", "Segunda", "Tercera", "Cuarta"], prompt: "Selecciona una categoría", class: "form-control" %>
           </div>
+
+          <% if @user.role&.nombre == 'administrador' && @user.role.club.present? %>
+            <h3 class="text-primary mt-4">Información del Club</h3>
+            <%= fields_for :club, @user.role.club do |c| %>
+              <div class="mb-3">
+                <%= c.label :nombre, "Nombre del Club", class: "form-label" %>
+                <%= c.text_field :nombre, class: "form-control" %>
+              </div>
+              <div class="mb-3">
+                <%= c.label :direccion, class: "form-label" %>
+                <%= c.text_field :direccion, class: "form-control" %>
+              </div>
+              <div class="mb-3">
+                <%= c.label :telefono, class: "form-label" %>
+                <%= c.text_field :telefono, class: "form-control" %>
+              </div>
+              <div class="mb-3">
+                <%= c.label :email, class: "form-label" %>
+                <%= c.email_field :email, class: "form-control" %>
+              </div>
+            <% end %>
+          <% end %>
         </div>
 
-        <!-- Botón -->
+        <!-- Campeonatos Inscritos -->
+        <div class="col-md-6">
+          <h3 class="text-primary">Campeonatos Inscritos</h3>
+
+          <% @user.inscripcions.includes(:campeonato).each do |inscripcion| %>
+            <div class="card my-3 p-3 bg-light">
+              <p><strong>Campeonato:</strong> <%= inscripcion.campeonato.nombre %></p>
+
+              <% pareja = inscripcion.parejas_como_1.first || inscripcion.parejas_como_2.first %>
+
+              <% if pareja.present? %>
+                <p class="text-success">¡Ya tienes pareja!</p>
+                <p><strong>Tu partner:</strong>
+                  <% otro_insc = (pareja.inscripcion_1 == inscripcion) ? pareja.inscripcion_2 : pareja.inscripcion_1 %>
+                  <%= otro_insc.user.nombre %> (estado: <%= pareja.estado %>)
+                </p>
+              <% else %>
+                <p class="text-warning">Aún no tienes pareja para este campeonato</p>
+
+                <!-- Formulario para elegir pareja -->
+                <%= form_with url: parejas_path, method: :post, local: true do |f2| %>
+                  <%= hidden_field_tag :inscripcion_1_id, inscripcion.id %>
+
+                  <div class="mb-2">
+                    <label for="inscripcion_2_id">Selecciona tu pareja:</label>
+                    <%= select_tag :inscripcion_2_id,
+                          options_from_collection_for_select(
+                            Inscripcion.where(campeonato: inscripcion.campeonato).where.not(id: inscripcion.id),
+                            :id, ->(i) { i.user.nombre }
+                          ),
+                          prompt: "Elige una pareja", class: "form-select" %>
+                  </div>
+
+                  <%= f2.submit "Crear pareja", class: "btn btn-primary btn-sm" %>
+                <% end %>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+
+        <!-- Botón de Guardar -->
         <div class="col-12 text-center mt-3">
           <%= f.submit "Guardar Cambios", class: "btn btn-warning px-4 py-2 fw-bold rounded-pill shadow-sm" %>
         </div>

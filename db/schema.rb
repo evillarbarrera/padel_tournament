@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_04_135740) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_08_002718) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -97,6 +97,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_04_135740) do
     t.index ["user_id"], name: "index_inscripcions_on_user_id"
   end
 
+  create_table "parejas", force: :cascade do |t|
+    t.integer "inscripcion_1_id", null: false
+    t.integer "inscripcion_2_id", null: false
+    t.string "estado", default: "pendiente"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["inscripcion_1_id"], name: "index_parejas_on_inscripcion_1_id"
+    t.index ["inscripcion_2_id"], name: "index_parejas_on_inscripcion_2_id"
+  end
+
   create_table "roles", force: :cascade do |t|
     t.integer "club_id"
     t.integer "user_id", null: false
@@ -170,6 +180,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_04_135740) do
   add_foreign_key "inscripcions", "campeonatos"
   add_foreign_key "inscripcions", "tipo_inscripcions"
   add_foreign_key "inscripcions", "users"
+  add_foreign_key "parejas", "inscripciones", column: "inscripcion_1_id"
+  add_foreign_key "parejas", "inscripciones", column: "inscripcion_2_id"
   add_foreign_key "roles", "clubs"
   add_foreign_key "roles", "users"
   add_foreign_key "tipo_inscripcions", "campeonatos"
