@@ -4,8 +4,7 @@ class CampeonatosController < ApplicationController
   layout "admin"
 
   def index
-    @campeonatos = Campeonato.where(club_id: current_user.club.id)
-
+    @campeonatos = @campeonatos.order(fecha_inicio: :asc)
     if params[:nombre].present?
       @campeonatos = @campeonatos.where("nombre ILIKE ?", "%#{params[:nombre]}%")
     end
@@ -18,7 +17,7 @@ class CampeonatosController < ApplicationController
       @campeonatos = @campeonatos.where(estado: params[:estado])
     end
 
-    @campeonatos = @campeonatos.order(fecha_inicio: :asc)
+    
   end
 
   def show; end

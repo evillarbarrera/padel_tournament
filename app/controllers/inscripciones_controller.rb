@@ -3,16 +3,17 @@ class InscripcionesController < ApplicationController
 
 
     def new
-    @inscripcion = Inscripcion.new
-    if params[:campeonato_id].present?
-         @campeonatos = Campeonato.all
-        @tipos_inscripcion = TipoInscripcion.all
-        @categorias = Categoria.all  # <--- Aquí defines @categorias
-        @campeonato = Campeonato.first # o la lógica para asignar @campeonato
-    else
-        @categorias = Categoria.all
-        @tipos_inscripcion = TipoInscripcion.all
-    end
+        @inscripcion = Inscripcion.new
+        if params[:campeonato_id].present?
+            @campeonato = Campeonato.find(params[:campeonato_id])
+            @campeonatos = Campeonato.all
+            @tipos_inscripcion = TipoInscripcion.all
+            @categorias = Categoria.all  # <--- Aquí defines @categorias
+
+        else
+            @categorias = Categoria.all
+            @tipos_inscripcion = TipoInscripcion.all
+        end
     end
 
     def show
