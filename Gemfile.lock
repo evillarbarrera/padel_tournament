@@ -469,6 +469,7 @@ DEPENDENCIES
   turbo-rails
   tzinfo-data
   vite_rails (~> 3.0)
+  vite_ruby
   web-console
 
 RUBY VERSION
