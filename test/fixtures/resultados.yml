@@ -1,0 +1,33 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  set_1_pareja_1: 1
+  set_1_pareja_2: 1
+  tiebreak1_pareja_1: 1
+  tiebreak1_pareja_2: 1
+  set_2_pareja_1: 1
+  set_2_pareja_2: 1
+  tiebreak2_pareja_1: 1
+  tiebreak2_pareja_2: 1
+  set_3_pareja_1: 1
+  set_3_pareja_2: 1
+  tiebreak3_pareja_1: 1
+  tiebreak3_pareja_2: 1
+  observaciones: MyText
+  partido_id: 1
+
+two:
+  set_1_pareja_1: 1
+  set_1_pareja_2: 1
+  tiebreak1_pareja_1: 1
+  tiebreak1_pareja_2: 1
+  set_2_pareja_1: 1
+  set_2_pareja_2: 1
+  tiebreak2_pareja_1: 1
+  tiebreak2_pareja_2: 1
+  set_3_pareja_1: 1
+  set_3_pareja_2: 1
+  tiebreak3_pareja_1: 1
+  tiebreak3_pareja_2: 1
+  observaciones: MyText
+  partido_id: 1

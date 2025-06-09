@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_08_002718) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_09_143435) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -65,6 +65,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_08_002718) do
     t.index ["club_id"], name: "index_campeonatos_on_club_id"
   end
 
+  create_table "canchas", force: :cascade do |t|
+    t.string "nombre"
+    t.integer "numero"
+    t.integer "club_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "categorias", force: :cascade do |t|
     t.string "nombre"
     t.datetime "created_at", null: false
@@ -105,6 +113,36 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_08_002718) do
     t.datetime "updated_at", null: false
     t.index ["inscripcion_1_id"], name: "index_parejas_on_inscripcion_1_id"
     t.index ["inscripcion_2_id"], name: "index_parejas_on_inscripcion_2_id"
+  end
+
+  create_table "partidos", force: :cascade do |t|
+    t.integer "pareja_id_1"
+    t.integer "pareja_id_2"
+    t.date "fecha"
+    t.time "hora"
+    t.string "estado"
+    t.integer "cancha_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "resultados", force: :cascade do |t|
+    t.integer "set_1_pareja_1"
+    t.integer "set_1_pareja_2"
+    t.integer "tiebreak1_pareja_1"
+    t.integer "tiebreak1_pareja_2"
+    t.integer "set_2_pareja_1"
+    t.integer "set_2_pareja_2"
+    t.integer "tiebreak2_pareja_1"
+    t.integer "tiebreak2_pareja_2"
+    t.integer "set_3_pareja_1"
+    t.integer "set_3_pareja_2"
+    t.integer "tiebreak3_pareja_1"
+    t.integer "tiebreak3_pareja_2"
+    t.text "observaciones"
+    t.integer "partido_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "roles", force: :cascade do |t|

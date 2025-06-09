@@ -1,0 +1,26 @@
+<h1>Canchas</h1>
+
+<%= link_to "Nueva Cancha", new_cancha_path, class: "btn btn-primary" %>
+
+<table>
+  <thead>
+    <tr>
+      <th>Nombre</th>
+      <th>Número</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @canchas.each do |cancha| %>
+      <tr>
+        <td><%= cancha.nombre %></td>
+        <td><%= cancha.numero %></td>
+        <td>
+          <%= link_to "Mostrar", cancha_path(cancha) %> |
+          <%= link_to "Editar", edit_cancha_path(cancha) %> |
+          <%= link_to "Eliminar", cancha_path(cancha), method: :delete, data: { confirm: "¿Estás seguro?" } %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

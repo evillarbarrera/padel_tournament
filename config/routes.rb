@@ -9,8 +9,7 @@ Rails.application.routes.draw do
   resources :users, only: [:show, :edit, :update]
   resources :inscripciones, only: [:new, :create, :index, :show]
   resources :parejas, only: [:create]
-
-
+  resources :canchas
   get 'home/publicos', to: 'home#publicos', as: 'home_publicos'
   resources :campeonatos
 

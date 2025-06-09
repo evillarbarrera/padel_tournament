@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  pareja_id_1: 1
+  pareja_id_2: 1
+  fecha: 2025-06-09
+  hora: 2025-06-09 10:34:27
+  estado: MyString
+  cancha_id: 1
+
+two:
+  pareja_id_1: 1
+  pareja_id_2: 1
+  fecha: 2025-06-09
+  hora: 2025-06-09 10:34:27
+  estado: MyString
+  cancha_id: 1

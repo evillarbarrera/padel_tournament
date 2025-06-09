@@ -1,4 +1,5 @@
 class Club < ApplicationRecord
+  has_many :canchas
   has_many :roles
   has_many :users, through: :roles
   has_many :campeonatos
