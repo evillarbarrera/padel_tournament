@@ -1,6 +1,6 @@
 class Pareja < ApplicationRecord
-  belongs_to :inscripcion_1, class_name: "Inscripcion"
-  belongs_to :inscripcion_2, class_name: "Inscripcion"
+  belongs_to :inscripcion_1, class_name: "Inscripcion", foreign_key: :inscripcion_1_id
+  belongs_to :inscripcion_2, class_name: "Inscripcion", foreign_key: :inscripcion_2_id
 
   validates :estado, inclusion: { in: %w[pendiente confirmados] }
 

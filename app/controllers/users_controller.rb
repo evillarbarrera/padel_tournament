@@ -5,7 +5,8 @@ class UsersController < ApplicationController
     # @user = User.find(params[:id])
     # @club = @user.club
     # @user = User.includes(:role, :club).find(params[:id])
-    @user = User.includes(role: :club).find(params[:id])
+    @user = User.includes(inscripcions: [:campeonato, :categoria]).find(params[:id])
+
   end
 
   def edit

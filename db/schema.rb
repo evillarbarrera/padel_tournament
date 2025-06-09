@@ -98,8 +98,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_08_002718) do
   end
 
   create_table "parejas", force: :cascade do |t|
-    t.integer "inscripcion_1_id", null: false
-    t.integer "inscripcion_2_id", null: false
+    t.integer "inscripcion_1_id"
+    t.integer "inscripcion_2_id"
     t.string "estado", default: "pendiente"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
