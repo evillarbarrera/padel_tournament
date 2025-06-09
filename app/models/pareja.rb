@@ -2,6 +2,10 @@ class Pareja < ApplicationRecord
   belongs_to :inscripcion_1, class_name: "Inscripcion", foreign_key: :inscripcion_1_id
   belongs_to :inscripcion_2, class_name: "Inscripcion", foreign_key: :inscripcion_2_id
 
+  belongs_to :campeonato
+  belongs_to :jugador1, class_name: 'User'
+  belongs_to :jugador2, class_name: 'User'
+
   validates :estado, inclusion: { in: %w[pendiente confirmados] }
 
   # Opcional: evita que alguien se empareje consigo mismo
