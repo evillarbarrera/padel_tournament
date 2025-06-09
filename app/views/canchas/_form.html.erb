@@ -1,26 +1,73 @@
-<%= form_with(model: cancha, local: true) do |form| %>
-  <% if cancha.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(cancha.errors.count, "error") %> impidieron guardar la cancha:</h2>
-      <ul>
-        <% cancha.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
-        <% end %>
-      </ul>
+<div class="container my-4">
+  <div class="card shadow border-0">
+    <div class="card-header bg-primary text-white">
+      <h3 class="mb-0">
+        <i class="bi bi-clipboard2-plus me-2"></i>
+        <%= cancha.persisted? ? "Editar Cancha" : "Nueva Cancha" %>
+      </h3>
     </div>
-  <% end %>
 
-  <div>
-    <%= form.label :nombre %><br>
-    <%= form.text_field :nombre %>
-  </div>
+    <div class="card-body">
+      <%= form_with(model: cancha, local: true, html: { class: "needs-validation", novalidate: true }) do |form| %>
 
-  <div>
-    <%= form.label :numero %><br>
-    <%= form.number_field :numero %>
-  </div>
+        <% if cancha.errors.any? %>
+          <div class="alert alert-danger" role="alert">
+            <h4 class="alert-heading">
+              <i class="bi bi-exclamation-triangle-fill me-2"></i>
+              <%= pluralize(cancha.errors.count, "error") %> impidieron guardar la cancha:
+            </h4>
+            <ul>
+              <% cancha.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
 
-  <div>
-    <%= form.submit %>
+        <div class="mb-3">
+          <%= form.label :nombre, class: "form-label fw-semibold" do %>
+            <i class="bi bi-type me-1"></i> Nombre de la Cancha
+          <% end %>
+          <%= form.text_field :nombre, class: "form-control", placeholder: "Ej: Cancha Norte", required: true %>
+          <div class="invalid-feedback">
+            Por favor ingrese un nombre válido.
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <%= form.label :numero, class: "form-label fw-semibold" do %>
+            <i class="bi bi-hash me-1"></i> Número de la Cancha
+          <% end %>
+          <%= form.number_field :numero, class: "form-control", placeholder: "Ej: 3", required: true, min: 1 %>
+          <div class="invalid-feedback">
+            Por favor ingrese un número válido mayor a 0.
+          </div>
+        </div>
+
+        <div class="d-grid gap-2 mt-4">
+          <%= form.submit (cancha.persisted? ? "Actualizar Cancha" : "Guardar Cancha"), class: "btn btn-success btn-lg fw-bold" %>
+          <%= link_to canchas_path, class: "btn btn-outline-secondary btn-lg fw-bold" do %>
+            <i class="bi bi-arrow-left me-2"></i> Volver al listado
+          <% end %>
+        </div>
+
+      <% end %>
+    </div>
   </div>
-<% end %>
+</div>
+
+<script>
+  (() => {
+    'use strict'
+    const forms = document.querySelectorAll('.needs-validation')
+    Array.from(forms).forEach(form => {
+      form.addEventListener('submit', event => {
+        if (!form.checkValidity()) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+        form.classList.add('was-validated')
+      }, false)
+    })
+  })()
+</script>

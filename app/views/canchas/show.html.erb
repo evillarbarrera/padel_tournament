@@ -1,6 +1,24 @@
-<h1>Cancha: <%= @cancha.nombre %></h1>
+<div class="container my-4">
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+      <h1 class="card-title text-primary">
+        <i class="bi bi-person-lines-fill me-2"></i>
+        Cancha: <%= @cancha.nombre %>
+      </h1>
 
-<p><strong>Número:</strong> <%= @cancha.numero %></p>
+      <p class="card-text fs-5">
+        <strong><i class="bi bi-hash me-1"></i>Número:</strong> <%= @cancha.numero %>
+      </p>
 
-<%= link_to "Editar", edit_cancha_path(@cancha) %> |
-<%= link_to "Volver al listado", canchas_path %>
+      <div class="mt-4 d-flex gap-2">
+        <%= link_to edit_cancha_path(@cancha), class: "btn btn-warning" do %>
+          <i class="bi bi-pencil-square me-1"></i> Editar
+        <% end %>
+
+        <%= link_to canchas_path, class: "btn btn-secondary" do %>
+          <i class="bi bi-arrow-left-circle me-1"></i> Volver al listado
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
