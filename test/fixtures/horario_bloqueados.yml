@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  campeonato: one
+  fechahora_inicio: 2025-06-09 15:02:47
+  fechahora_fin: 2025-06-09 15:02:47
+
+two:
+  campeonato: two
+  fechahora_inicio: 2025-06-09 15:02:47
+  fechahora_fin: 2025-06-09 15:02:47

@@ -66,9 +66,56 @@ class CampeonatosController < ApplicationController
     else
       redirect_to campeonatos_path, alert: "No se pudo eliminar el campeonato."
     end
-  rescue ActiveRecord::InvalidForeignKey => e
-    redirect_to campeonatos_path, alert: "Error: el campeonato tiene registros asociados."
+    rescue ActiveRecord::InvalidForeignKey => e
+      redirect_to campeonatos_path, alert: "Error: el campeonato tiene registros asociados."
   end
+
+  def guardar_bloqueos
+    campeonato = Campeonato.find(params[:id])
+    bloqueos = params[:bloqueos]
+    fecha_inicio = Date.parse(params[:fecha_inicio])
+    fecha_termino = Date.parse(params[:fecha_termino])
+
+    bloqueos.each do |bloqueo|
+      dia = bloqueo[:dia]
+      hora = bloqueo[:hora].to_i
+
+      # Convertir nombre de día a número (lunes = 1, domingo = 7)
+      dia_num = {
+        "Lunes" => 1, "Martes" => 2, "Miércoles" => 3,
+        "Jueves" => 4, "Viernes" => 5, "Sábado" => 6, "Domingo" => 7
+      }[dia]
+
+      # Generar todas las fechas entre fecha_inicio y fecha_termino con ese día
+      (fecha_inicio..fecha_termino).each do |fecha|
+        if fecha.cwday == dia_num
+          fechahora_inicio = fecha.to_datetime.change({ hour: hora, min: 0 })
+          fechahora_fin = fechahora_inicio + 1.hour
+
+          HorarioBloqueado.create!(
+            campeonato_id: campeonato.id,
+            fechahora_inicio: fechahora_inicio,
+            fechahora_fin: fechahora_fin
+          )
+        end
+      end
+    end
+
+    render json: { success: true }
+  end
+
+  def bloqueos
+    campeonato = Campeonato.find(params[:id])
+    bloqueos = campeonato.horario_bloqueados
+
+    render json: bloqueos.map { |b| {
+      id: b.id,
+      fechahora_inicio: b.fechahora_inicio,
+      fechahora_fin: b.fechahora_fin
+    } }
+  end
+
+
 
   private
 

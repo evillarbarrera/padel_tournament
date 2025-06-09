@@ -4,3 +4,5 @@ import "controllers"
 import Rails from "@rails/ujs";
 import "core.min.js";
 Rails.start();
+import { createApp } from "vue/dist/vue.esm-bundler.js"
+window.createApp = createApp

@@ -81,3 +81,5 @@ group :production do
 end
 
 gem "kaminari", "~> 1.2"
+
+gem "vite_rails", "~> 3.0"

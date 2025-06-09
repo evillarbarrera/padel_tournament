@@ -224,34 +224,45 @@
         <div class="tab-pane fade show active" id="horarios" role="tabpanel" aria-labelledby="horarios-tab">
           <!-- Aquí va el contenido de Horarios Bloqueados -->
           <div>
-            <h5>Selecciona los horarios bloqueados</h5>
-            <div class="alert alert-info">
-              El calendario se genera dinámicamente según la <strong>fecha de inicio</strong> y <strong>fecha de término</strong> del campeonato.
-            </div>
+              <div>
+                <h5>Selecciona los horarios bloqueados</h5>
+                <div class="alert alert-info">
+                  El calendario se genera dinámicamente según la <strong>fecha de inicio</strong> y <strong>fecha de término</strong> del campeonato.
+                </div>
 
-            <div id="bloqueador-calendario" class="table-responsive">
-              <table class="table table-bordered text-center">
-                <thead>
-                  <tr>
-                    <th>Hora</th>
-                    <th>Lunes</th>
-                    <th>Martes</th>
-                    <th>Miércoles</th>
-                    <th>Jueves</th>
-                    <th>Viernes</th>
-                    <th>Sábado</th>
-                    <th>Domingo</th>
-                  </tr>
-                </thead>
-                <tbody id="bloqueador-body">
-                  <!-- JS insertará filas aquí -->
-                </tbody>
-              </table>
-            </div>
+                <div class="row mb-3">
+                  <div class="col-md-3">
+                    <%= form.label :fecha_inicio, "Fecha de Inicio" %>
+                    <%= form.date_field :fecha_inicio, class: "form-control", id: "fecha_inicio_bloqueo" %>
+                  </div>
+                  <div class="col-md-3">
+                    <%= form.label :fecha_termino, "Fecha de Término" %>
+                    <%= form.date_field :fecha_termino, class: "form-control", id: "fecha_termino_bloqueo" %>
+                  </div>
+                </div>
 
-            <button class="btn btn-primary mt-2" id="guardar-bloqueos">Guardar Horarios Bloqueados</button>
-          </div>
+                <div id="bloqueador-calendario" class="table-responsive">
+                  <table class="table table-bordered text-center">
+                    <thead>
+                      <tr>
+                        <th>Hora</th>
+                        <th>Lunes</th>
+                        <th>Martes</th>
+                        <th>Miércoles</th>
+                        <th>Jueves</th>
+                        <th>Viernes</th>
+                        <th>Sábado</th>
+                        <th>Domingo</th>
+                      </tr>
+                    </thead>
+                    <tbody id="bloqueador-body">
+                      <!-- Se rellena con JS -->
+                    </tbody>
+                  </table>
+                </div>
 
+                <button type="button" class="btn btn-primary mt-3" id="guardar-bloqueos">Guardar Horarios Bloqueados</button>
+              </div>
         </div>
         <div class="tab-pane fade" id="calendario" role="tabpanel" aria-labelledby="calendario-tab">
           <!-- Aquí va el contenido de Generación de Calendario -->
@@ -331,108 +342,139 @@
     checkboxes.forEach(cb => cb.checked = select);
   }
 </script>
-
+<script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const body = document.getElementById('bloqueador-body');
-    const fechaInicioInput = document.querySelector('input[name="campeonato[fecha_inicio]"]');
-    const fechaTerminoInput = document.querySelector('input[name="campeonato[fecha_termino]"]');
-    
-    // Crea horarios desde 08:00 a 22:00
-    function generarHoras() {
-      const horas = [];
-      for (let i = 8; i <= 22; i++) {
-        horas.push(i.toString().padStart(2, '0') + ":00");
-      }
-      return horas;
-    }
+  document.addEventListener("DOMContentLoaded", function () {
+    console.log("✅ DOM completamente cargado");
 
-    function generarCalendario() {
-      const inicio = new Date(fechaInicioInput.value);
-      const fin = new Date(fechaTerminoInput.value);
-      if (isNaN(inicio) || isNaN(fin)) return;
+    const dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+    const bloqueadorBody = document.getElementById("bloqueador-body");
+    const campeonatoId = <%= @campeonato.id %>; // Debe estar presente en tu template
 
-      body.innerHTML = '';
-      const horas = generarHoras();
+    // Construcción de la tabla - filas desde las 08 hasta las 22 horas
+    for (let h = 8; h <= 22; h++) {
+      const row = document.createElement("tr");
 
-      horas.forEach(hora => {
-        const row = document.createElement('tr');
-        row.innerHTML = `<td><strong>${hora}</strong></td>`;
-        for (let i = 0; i < 7; i++) {
-          const cell = document.createElement('td');
-          cell.classList.add('selectable-slot');
-          cell.dataset.hora = hora;
-          cell.dataset.dia = i; // 0: lunes, 6: domingo
-          cell.style.cursor = "pointer";
-          cell.style.backgroundColor = "#fff";
-          row.appendChild(cell);
-        }
-        body.appendChild(row);
+      const hora = document.createElement("td");
+      hora.textContent = `${h.toString().padStart(2, "0")}:00`;
+      row.appendChild(hora);
+
+      dias.forEach(dia => {
+        const cell = document.createElement("td");
+        cell.dataset.hora = h;
+        cell.dataset.dia = dia;
+        cell.style.cursor = "pointer";
+        cell.classList.add("bloque-horario");
+
+        cell.addEventListener("click", function () {
+          this.classList.toggle("table-primary");
+        });
+
+        row.appendChild(cell);
       });
+
+      bloqueadorBody.appendChild(row);
     }
 
-    // Manejo de selección
-    document.addEventListener('click', function (e) {
-      if (e.target.classList.contains('selectable-slot')) {
-        e.target.classList.toggle('selected');
-        e.target.style.backgroundColor = e.target.classList.contains('selected') ? '#FF9F9F' : '#fff';
-      }
-    });
+    // Cargar bloqueos guardados
+    const urlBloqueos = `/campeonatos/${campeonatoId}/bloqueos`;
+    console.log("🔄 Cargando bloqueos desde:", urlBloqueos);
 
-    // Cargar calendario cuando se modifican las fechas
-    fechaInicioInput.addEventListener('change', generarCalendario);
-    fechaTerminoInput.addEventListener('change', generarCalendario);
+    fetch(urlBloqueos)
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`❌ Error al cargar bloqueos (${res.status})`);
+        }
+        return res.json();
+      })
+      .then(data => {
+        console.log("📦 Bloqueos recibidos:", data);
+
+        // Días en JS: Domingo = 0, Lunes = 1, ...
+        const diasJS = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+
+        data.forEach(bloqueo => {
+          if (!bloqueo.fechahora_inicio) {
+            console.warn("Bloqueo sin fecha de inicio:", bloqueo);
+            return;
+          }
+
+          const fecha = new Date(bloqueo.fechahora_inicio);
+          const dia = diasJS[fecha.getDay()]; // nombre día local
+          const hora = fecha.getHours();      // hora local
+
+          console.log(`Procesando bloqueo: Día local: ${dia}, Hora local: ${hora}`);
+
+          if (!dias.includes(dia)) {
+            console.warn(`Día no reconocido en tabla: ${dia}`);
+            return;
+          }
+
+          // Solo marcar si la hora está en el rango visible
+          if (hora < 8 || hora > 22) {
+            console.log(`Bloqueo fuera del rango visible: ${dia} ${hora}`);
+            return;
+          }
+
+          const selector = `.bloque-horario[data-dia="${dia}"][data-hora="${hora}"]`;
+          const cell = document.querySelector(selector);
+
+          if (cell) {
+            cell.classList.add("table-primary");
+          } else {
+            console.warn(`No se encontró celda para ${dia} ${hora}`);
+          }
+        });
+      })
+      .catch(error => {
+        console.error("❌ Error en fetch de bloqueos:", error);
+      });
 
     // Guardar bloqueos
-    document.getElementById('guardar-bloqueos').addEventListener('click', function () {
-      const selected = document.querySelectorAll('.selectable-slot.selected');
-      const inicio = new Date(fechaInicioInput.value);
-      if (isNaN(inicio)) {
-        alert("Primero selecciona una fecha de inicio");
-        return;
-      }
+    document.getElementById("guardar-bloqueos").addEventListener("click", () => {
+      const fecha_inicio = document.getElementById("fecha_inicio_bloqueo").value;
+      const fecha_termino = document.getElementById("fecha_termino_bloqueo").value;
 
-      const bloqueos = [];
+      const seleccionados = Array.from(document.querySelectorAll(".bloque-horario.table-primary"))
+        .map(cell => ({
+          dia: cell.dataset.dia,
+          hora: cell.dataset.hora
+        }));
 
-      selected.forEach(cell => {
-        const hora = cell.dataset.hora;
-        const diaOffset = parseInt(cell.dataset.dia);
-        const diaBase = new Date(inicio);
-        diaBase.setDate(inicio.getDate() + diaOffset);
-        
-        const fechaInicio = new Date(diaBase.toISOString().split('T')[0] + 'T' + hora);
-        const fechaFin = new Date(fechaInicio.getTime() + 60 * 60 * 1000); // 1h
+      console.log("📤 Enviando bloqueos:", seleccionados);
+      console.log("📅 Fecha inicio:", fecha_inicio);
+      console.log("📅 Fecha término:", fecha_termino);
 
-        bloqueos.push({
-          fechahora_inicio: fechaInicio.toISOString(),
-          fechahora_fin: fechaFin.toISOString()
-        });
-      });
+      const urlGuardar = `/campeonatos/${campeonatoId}/guardar_bloqueos`;
+      console.log("📨 URL POST:", urlGuardar);
 
-      // Enviar con fetch
-      fetch('/horarios_bloqueados', {
-        method: 'POST',
+      fetch(urlGuardar, {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+          "Content-Type": "application/json",
+          "X-CSRF-Token": document.querySelector("[name='csrf-token']").content
         },
         body: JSON.stringify({
-          campeonato_id: <%= @campeonato.id %>,
-          bloqueos: bloqueos
+          bloqueos: seleccionados,
+          fecha_inicio,
+          fecha_termino
         })
       })
-      .then(res => res.json())
-      .then(data => {
-        alert('Bloqueos guardados correctamente');
-        document.querySelectorAll('.selectable-slot.selected').forEach(c => {
-          c.classList.remove('selected');
-          c.style.backgroundColor = '#fff';
+        .then(res => {
+          console.log("🔽 Respuesta POST status:", res.status);
+          if (!res.ok) {
+            throw new Error(`❌ Error al guardar bloqueos (${res.status})`);
+          }
+          return res.json();
+        })
+        .then(data => {
+          console.log("✅ Bloqueos guardados correctamente:", data);
+          alert("Bloqueos guardados con éxito.");
+        })
+        .catch(error => {
+          console.error("❌ Error al guardar bloqueos:", error);
+          alert("Error al guardar bloqueos.");
         });
-      })
-      .catch(err => {
-        alert('Error guardando bloqueos');
-        console.error(err);
-      });
     });
   });
 </script>

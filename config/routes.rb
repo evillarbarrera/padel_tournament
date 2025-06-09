@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  get "horarios_bloqueados/create"
 
   #devise_for :users
   devise_for :users, controllers: {
@@ -17,4 +18,12 @@ Rails.application.routes.draw do
     get "dashboard/index"
     get 'dashboard', to: 'dashboard#index', as: 'dashboard'
   end
+
+  resources :campeonatos do
+    member do
+      post :guardar_bloqueos
+      get :bloqueos
+    end
+  end
+
 end

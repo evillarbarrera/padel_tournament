@@ -11,6 +11,9 @@
   <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
   <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
 
+  <meta name="csrf-token" content="<%= csrf_meta_tags %>">
+  <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
+
   <style>
     body {
       overflow-x: hidden;

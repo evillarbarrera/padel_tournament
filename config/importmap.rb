@@ -11,3 +11,5 @@ pin "navbar" # @3.0.0
 pin "navbar", to: "navbar.js"
 pin "navbar", to: "core.min.js"
 pin "navbar", to: "script.js"
+
+pin "vue", to: "https://unpkg.com/vue@3/dist/vue.esm-browser.js"

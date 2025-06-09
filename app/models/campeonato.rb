@@ -14,6 +14,8 @@ class Campeonato < ApplicationRecord
   # Asociacion correcta con inscripciones
   has_many :inscripciones, dependent: :destroy, class_name: 'Inscripcion'
 
+  has_many :horario_bloqueados, dependent: :destroy
+
   # Validaciones
   validates :nombre, presence: true
   validates :fecha_inicio, presence: true
