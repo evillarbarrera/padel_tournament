@@ -19,6 +19,9 @@ Rails.application.routes.draw do
     get 'dashboard', to: 'dashboard#index', as: 'dashboard'
   end
 
+  post '/generar_fixture', to: 'campeonatos#generar_fixture'
+
+
   resources :campeonatos do
     member do
       post :guardar_bloqueos

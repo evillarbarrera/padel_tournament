@@ -29,11 +29,15 @@ class CampeonatosController < ApplicationController
     @campeonato.tipo_inscripcions.build
 
     @categorias = Categoria.all.order(:nombre)
+    @parejas = Pareja.all
+    @canchas = Cancha.all
   end
 
   def edit
     @campeonato = Campeonato.includes(:tipo_inscripcions, :categorias).find(params[:id])
     @categorias = Categoria.all.order(:nombre)
+    @parejas = Pareja.all
+    @canchas = Cancha.all
   end
 
   def create
@@ -115,6 +119,68 @@ class CampeonatosController < ApplicationController
     } }
   end
 
+  require 'ostruct'  # asegúrate que esté arriba del archivo
+
+  def generar_fixture
+    begin
+      fecha_inicio = Date.parse(params[:fecha_inicio])
+      fecha_fin = Date.parse(params[:fecha_fin])
+      duracion = params[:duracion].to_i
+      canchas_ids = params[:canchas].map(&:to_i) rescue []
+      parejas = Pareja
+                  .where(estado: 'pendiente')
+                  .includes(inscripcion_1: :user, inscripcion_2: :user)
+                  .map do |p|
+                    OpenStruct.new(
+                      id: p.id,
+                      nombre: "#{p.inscripcion_1.user.nombre} / #{p.inscripcion_2.user.nombre}"
+                    )
+                  end
+
+      # Validar que haya al menos 2 parejas y al menos 1 cancha seleccionada
+      if canchas_ids.blank? || parejas.size < 1
+        return render json: { error: 'Se requieren al menos dos parejas y una cancha' }, status: :unprocessable_entity
+      end
+
+      total_parejas_necesarias = params[:cupo_max].to_i > 0 ? params[:cupo_max].to_i : 8
+      faltantes = total_parejas_necesarias - parejas.size
+
+      # Agregar parejas ficticias si hacen falta
+      if faltantes > 0
+        faltantes.times do |i|
+          parejas << OpenStruct.new(id: nil, nombre: "Pareja faltante #{i + 1}")
+        end
+      end
+
+      partidos = []
+      emparejamientos = parejas.combination(2).to_a.shuffle
+      current_time = fecha_inicio.to_datetime.change(hour: 9, min: 0)
+      cancha_index = 0
+
+      emparejamientos.each do |par|
+        partidos << {
+          pareja_1: { id: par[0].id, nombre: par[0].nombre },
+          pareja_2: { id: par[1].id, nombre: par[1].nombre },
+          cancha_id: canchas_ids[cancha_index % canchas_ids.size],
+          fecha_hora: current_time
+        }
+
+        current_time += duracion.minutes
+        if current_time.hour >= 21
+          current_time = current_time.beginning_of_day + 1.day + 9.hours
+        end
+
+        cancha_index += 1
+      end
+
+      render json: { partidos: partidos }
+    rescue => e
+      render json: { error: e.message, backtrace: e.backtrace[0..5] }, status: 500
+    end
+  end
+
+
+
 
 
   private
@@ -195,6 +261,7 @@ end
         end
       end
     end
+
 
 
 

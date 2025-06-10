@@ -204,75 +204,123 @@
         </div>
     </div>
     
+    
+    
     <!-- Partidos -->
-   <!-- Partidos -->
     <div class="tab-pane fade" id="partidos" role="tabpanel" aria-labelledby="partidos-tab">
+      <!-- Subpestañas -->
       <ul class="nav nav-tabs mt-3" id="partidosSubTabs" role="tablist">
         <li class="nav-item" role="presentation">
-          <button class="nav-link active" id="horarios-tab" data-bs-toggle="tab" data-bs-target="#horarios" type="button" role="tab" aria-controls="horarios" aria-selected="true">
-            Horarios Bloqueados
-          </button>
+          <a class="nav-link active" id="horarios-tab" data-bs-toggle="tab" href="#horarios" role="tab" aria-controls="horarios" aria-selected="true">Horarios Bloqueados</a>
         </li>
         <li class="nav-item" role="presentation">
-          <button class="nav-link" id="calendario-tab" data-bs-toggle="tab" data-bs-target="#calendario" type="button" role="tab" aria-controls="calendario" aria-selected="false">
-            Generación de Calendario
-          </button>
+          <a class="nav-link" id="calendario-tab" data-bs-toggle="tab" href="#calendario" role="tab" aria-controls="calendario" aria-selected="false">Generación de Calendario</a>
         </li>
       </ul>
 
       <div class="tab-content pt-3" id="partidosSubTabsContent">
+        <!-- Subpestaña: Horarios Bloqueados -->
         <div class="tab-pane fade show active" id="horarios" role="tabpanel" aria-labelledby="horarios-tab">
-          <!-- Aquí va el contenido de Horarios Bloqueados -->
           <div>
-              <div>
-                <h5>Selecciona los horarios bloqueados</h5>
-                <div class="alert alert-info">
-                  El calendario se genera dinámicamente según la <strong>fecha de inicio</strong> y <strong>fecha de término</strong> del campeonato.
-                </div>
+            <h5>Selecciona los horarios bloqueados</h5>
+            <div class="alert alert-info">
+              El calendario se genera dinámicamente según la <strong>fecha de inicio</strong> y <strong>fecha de término</strong> del campeonato.
+            </div>
 
-                <div class="row mb-3">
-                  <div class="col-md-3">
-                    <%= form.label :fecha_inicio, "Fecha de Inicio" %>
-                    <%= form.date_field :fecha_inicio, class: "form-control", id: "fecha_inicio_bloqueo" %>
-                  </div>
-                  <div class="col-md-3">
-                    <%= form.label :fecha_termino, "Fecha de Término" %>
-                    <%= form.date_field :fecha_termino, class: "form-control", id: "fecha_termino_bloqueo" %>
-                  </div>
-                </div>
-
-                <div id="bloqueador-calendario" class="table-responsive">
-                  <table class="table table-bordered text-center">
-                    <thead>
-                      <tr>
-                        <th>Hora</th>
-                        <th>Lunes</th>
-                        <th>Martes</th>
-                        <th>Miércoles</th>
-                        <th>Jueves</th>
-                        <th>Viernes</th>
-                        <th>Sábado</th>
-                        <th>Domingo</th>
-                      </tr>
-                    </thead>
-                    <tbody id="bloqueador-body">
-                      <!-- Se rellena con JS -->
-                    </tbody>
-                  </table>
-                </div>
-
-                <button type="button" class="btn btn-primary mt-3" id="guardar-bloqueos">Guardar Horarios Bloqueados</button>
+            <div class="row mb-3">
+              <div class="col-md-3">
+                <%= form.label :fecha_inicio, "Fecha de Inicio" %>
+                <%= form.date_field :fecha_inicio, class: "form-control form-control-sm", id: "fecha_inicio_bloqueo" %>
               </div>
-        </div>
-        <div class="tab-pane fade" id="calendario" role="tabpanel" aria-labelledby="calendario-tab">
-          <!-- Aquí va el contenido de Generación de Calendario -->
-          <p>Contenido para generación de calendario...</p>
-        </div>
-      </div>
-    </div>
-                
+              <div class="col-md-3">
+                <%= form.label :fecha_termino, "Fecha de Término" %>
+                <%= form.date_field :fecha_termino, class: "form-control form-control-sm", id: "fecha_termino_bloqueo" %>
+              </div>
+            </div>
 
-  </div>
+            <div id="bloqueador-calendario" class="table-responsive">
+              <table class="table table-bordered text-center" style="font-size: 0.85rem; border-collapse: collapse;">
+                <thead>
+                  <tr>
+                    <th style="padding: 4px 6px; min-width: 40px;">Hora</th>
+                    <th style="padding: 4px 6px;">Lunes</th>
+                    <th style="padding: 4px 6px;">Martes</th>
+                    <th style="padding: 4px 6px;">Miércoles</th>
+                    <th style="padding: 4px 6px;">Jueves</th>
+                    <th style="padding: 4px 6px;">Viernes</th>
+                    <th style="padding: 4px 6px;">Sábado</th>
+                    <th style="padding: 4px 6px;">Domingo</th>
+                  </tr>
+                </thead>
+                <tbody id="bloqueador-body" style="line-height: 1.2;">
+                  <!-- Se rellena con JS -->
+                </tbody>
+              </table>
+            </div>
+
+            <button type="button" class="btn btn-primary btn-sm mt-3" id="guardar-bloqueos">Guardar Horarios Bloqueados</button>
+          </div>
+        </div>
+
+
+        <!-- Subpestaña: Generación de Calendario -->
+        <div class="tab-pane fade" id="calendario" role="tabpanel" aria-labelledby="calendario-tab">
+          <h4>Generación de Calendario del Campeonato</h4>
+
+          <div class="row">
+            <!-- Columna izquierda: Datos -->
+            <div class="col-md-6">
+              <div class="row mb-3">
+                <div class="col-md-6">
+                    <%= form.label :fecha_inicio, "Fecha de Inicio" %>
+                    <%= form.date_field :fecha_inicio, class: "form-control form-control-sm", id: "fecha-inicio" %>
+                </div>
+                <div class="col-md-6">
+                    <%= form.label :fecha_termino, "Fecha de Término" %>
+                <%= form.date_field :fecha_termino, class: "form-control form-control-sm", id: "fecha-fin" %>
+                </div>
+              </div>
+
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label for="duracion" class="form-label">Duración por partido (min)</label>
+                  <input type="number" id="duracion" class="form-control" value="60">
+                </div>
+                <div class="col-md-6">
+                  <label for="cupo-max" class="form-label">Cupo máximo de parejas</label>
+                  <input type="number" id="cupo-max" class="form-control" value="<%= @parejas.count %>">
+                </div>
+              </div>
+            </div>
+
+            <!-- Columna derecha: Canchas -->
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Selecciona las canchas a utilizar:</label>
+                <% @canchas.each do |cancha| %>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="<%= cancha.id %>" id="cancha_<%= cancha.id %>" name="canchas[]">
+                    <label class="form-check-label" for="cancha_<%= cancha.id %>">
+                      <%= cancha.nombre %> (N° <%= cancha.numero %>)
+                    </label>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          </div>
+
+          <!-- Botón y resultado -->
+          <div class="mt-4">
+            <button type="button" class="btn btn-primary" id="btn-generar-fixture">Generar calendario de partidos</button>
+            <div id="resultado-fixture" class="mt-4"></div>
+            <div id="calendario-fixture" style="max-width: 900px; margin: 40px auto;"></div>
+          </div>
+        </div>
+
+
+      </div>
+
+    </div>
 
   <div class="mt-4">
     <%= form.submit "Guardar Campeonato", class: "btn btn-primary" %>
@@ -342,7 +390,9 @@
     checkboxes.forEach(cb => cb.checked = select);
   }
 </script>
+
 <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
+
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     console.log("✅ DOM completamente cargado");
@@ -478,3 +528,102 @@
     });
   });
 </script>
+
+<script>
+  document.getElementById('btn-generar-fixture').addEventListener('click', function (event) {
+    event.preventDefault();
+
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    const fechaInicio = document.getElementById('fecha-inicio').value;
+    const fechaFin = document.getElementById('fecha-fin').value;
+    const duracion = parseInt(document.getElementById('duracion').value, 10);
+    const cupoMax = document.getElementById('cupo-max').value;
+    const canchas = Array.from(document.querySelectorAll('input[name="canchas[]"]:checked')).map(el => el.value);
+
+    const coloresPorCancha = {
+      1: '#1abc9c',
+      2: '#3498db',
+      3: '#9b59b6',
+      4: '#e67e22',
+      5: '#e74c3c',
+      6: '#2ecc71'
+    };
+
+    fetch('/generar_fixture', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': csrfToken
+      },
+      body: JSON.stringify({
+        fecha_inicio: fechaInicio,
+        fecha_fin: fechaFin,
+        duracion: duracion,
+        canchas: canchas,
+        cupo_max: cupoMax
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (!data.partidos) {
+        document.getElementById('resultado-fixture').innerHTML = `<div class="alert alert-danger">Error al generar fixture: ${data.error || 'Respuesta inesperada del servidor.'}</div>`;
+        return;
+      }
+
+      // Mostrar como lista
+      let html = '<h5>Fixture generado:</h5><ul>';
+      data.partidos.forEach(p => {
+        html += `<li><strong>${new Date(p.fecha_hora).toLocaleString()}</strong> - <u>Cancha ${p.cancha_id}</u><br>
+          ${p.pareja_1.nombre} vs ${p.pareja_2.nombre}</li>`;
+      });
+      html += '</ul>';
+
+
+      // Mostrar en calendario visual
+      const calendarEl = document.getElementById('calendario-fixture');
+
+      // Limpia contenido previo por si acaso (evita que se duplique el calendario si se llama varias veces)
+      calendarEl.innerHTML = '';
+
+      const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'timeGridWeek',
+        slotMinTime: '09:00:00',
+        slotMaxTime: '21:00:00',
+        allDaySlot: false,
+        height: 'auto', // Ajusta altura automáticamente
+        locale: 'es', // Configura idioma español
+
+        // Fecha inicial: la del primer partido si existe, sino hoy
+        initialDate: data.partidos.length > 0
+          ? new Date(data.partidos[0].fecha_hora).toISOString().slice(0, 10)
+          : new Date().toISOString().slice(0, 10),
+
+        events: data.partidos.map(p => {
+          const start = new Date(p.fecha_hora);
+          const end = new Date(start.getTime() + duracion * 60000);
+
+          return {
+            title: `${p.pareja_1.nombre} vs ${p.pareja_2.nombre}`,
+            start: start.toISOString(),
+            end: end.toISOString(),
+            backgroundColor: coloresPorCancha[p.cancha_id] || '#95a5a6',
+            borderColor: coloresPorCancha[p.cancha_id] || '#95a5a6'
+          };
+        }),
+
+        headerToolbar: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'timeGridWeek,timeGridDay'
+        }
+      });
+
+      calendar.render();
+    })
+    .catch(error => {
+      console.error('Error generando fixture:', error);
+      document.getElementById('resultado-fixture').innerHTML = `<div class="alert alert-danger">Error al generar fixture: ${error.message}</div>`;
+    });
+  });
+</script>
+
