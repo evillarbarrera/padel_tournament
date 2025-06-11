@@ -273,11 +273,11 @@
               <div class="row mb-3">
                 <div class="col-md-6">
                     <%= form.label :fecha_inicio, "Fecha de Inicio" %>
-                    <%= form.date_field :fecha_inicio, class: "form-control form-control-sm", id: "fecha-inicio" %>
+                    <%= form.date_field :fecha_inicio, class: "form-control form-control-sm", id: "fecha-inicio", disabled: true  %>
                 </div>
                 <div class="col-md-6">
                     <%= form.label :fecha_termino, "Fecha de Término" %>
-                <%= form.date_field :fecha_termino, class: "form-control form-control-sm", id: "fecha-fin" %>
+                <%= form.date_field :fecha_termino, class: "form-control form-control-sm", id: "fecha-fin", disabled: true  %>
                 </div>
               </div>
 
@@ -288,8 +288,10 @@
                 </div>
                 <div class="col-md-6">
                   <label for="cupo-max" class="form-label">Cupo máximo de parejas</label>
-                  <input type="number" id="cupo-max" class="form-control" value="<%= @parejas.count %>">
+
+                    <%= form.number_field :cupos_maximos, class: "form-control", id: "cupo-max", disabled: true%>
                 </div>
+
               </div>
             </div>
 
@@ -313,7 +315,7 @@
           <div class="mt-4">
             <button type="button" class="btn btn-primary" id="btn-generar-fixture">Generar calendario de partidos</button>
             <div id="resultado-fixture" class="mt-4"></div>
-            <div id="calendario-fixture" style="max-width: 900px; margin: 40px auto;"></div>
+            <div id="calendario-fixture" style="width: 100%; margin: 40px auto3;"></div>
           </div>
         </div>
 
@@ -531,86 +533,109 @@
 
 <script>
   document.getElementById('btn-generar-fixture').addEventListener('click', function (event) {
-    event.preventDefault();
+  event.preventDefault();
 
-    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    const fechaInicio = document.getElementById('fecha-inicio').value;
-    const fechaFin = document.getElementById('fecha-fin').value;
-    const duracion = parseInt(document.getElementById('duracion').value, 10);
-    const cupoMax = document.getElementById('cupo-max').value;
-    const canchas = Array.from(document.querySelectorAll('input[name="canchas[]"]:checked')).map(el => el.value);
+  const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+  const fechaInicio = document.getElementById('fecha-inicio').value;
+  const fechaFin = document.getElementById('fecha-fin').value;
+  const duracion = parseInt(document.getElementById('duracion').value, 10);
+  const cupoMax = document.getElementById('cupo-max').value;
+  const canchas = Array.from(document.querySelectorAll('input[name="canchas[]"]:checked')).map(el => el.value);
 
-    const coloresPorCancha = {
-      1: '#1abc9c',
-      2: '#3498db',
-      3: '#9b59b6',
-      4: '#e67e22',
-      5: '#e74c3c',
-      6: '#2ecc71'
-    };
+  const coloresPorCancha = {
+    1: '#1abc9c',
+    2: '#3498db',
+    3: '#9b59b6',
+    4: '#e67e22',
+    5: '#e74c3c',
+    6: '#2ecc71'
+  };
 
-    fetch('/generar_fixture', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-Token': csrfToken
-      },
-      body: JSON.stringify({
-        fecha_inicio: fechaInicio,
-        fecha_fin: fechaFin,
-        duracion: duracion,
-        canchas: canchas,
-        cupo_max: cupoMax
-      })
+  fetch('/generar_fixture', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': csrfToken
+    },
+    body: JSON.stringify({
+      fecha_inicio: fechaInicio,
+      fecha_fin: fechaFin,
+      duracion: duracion,
+      canchas: canchas,
+      cupo_max: cupoMax
     })
-    .then(response => response.json())
-    .then(data => {
-      if (!data.partidos) {
-        document.getElementById('resultado-fixture').innerHTML = `<div class="alert alert-danger">Error al generar fixture: ${data.error || 'Respuesta inesperada del servidor.'}</div>`;
-        return;
-      }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (!data.partidos) {
+      document.getElementById('resultado-fixture').innerHTML = `<div class="alert alert-danger">Error al generar fixture: ${data.error || 'Respuesta inesperada del servidor.'}</div>`;
+      return;
+    }
 
-      // Mostrar como lista
-      let html = '<h5>Fixture generado:</h5><ul>';
-      data.partidos.forEach(p => {
-        html += `<li><strong>${new Date(p.fecha_hora).toLocaleString()}</strong> - <u>Cancha ${p.cancha_id}</u><br>
-          ${p.pareja_1.nombre} vs ${p.pareja_2.nombre}</li>`;
-      });
-      html += '</ul>';
+    // Agrupar partidos por cancha_id
+    const partidosPorCancha = {};
+    data.partidos.forEach(p => {
+      if (!partidosPorCancha[p.cancha_id]) partidosPorCancha[p.cancha_id] = [];
+      partidosPorCancha[p.cancha_id].push(p);
+    });
 
+    // Generar pestañas dinámicas
+    let tabsHtml = `<ul class="nav nav-tabs" id="canchasTabs" role="tablist">`;
+    let tabsContentHtml = `<div class="tab-content" id="canchasTabsContent">`;
 
-      // Mostrar en calendario visual
-      const calendarEl = document.getElementById('calendario-fixture');
+    canchas.forEach((canchaId, index) => {
+      const activeClass = index === 0 ? 'active' : '';
+      const showClass = index === 0 ? 'show active' : '';
 
-      // Limpia contenido previo por si acaso (evita que se duplique el calendario si se llama varias veces)
-      calendarEl.innerHTML = '';
+      tabsHtml += `
+        <li class="nav-item" role="presentation">
+          <button class="nav-link ${activeClass}" id="tab-cancha-${canchaId}" data-bs-toggle="tab" data-bs-target="#cancha-${canchaId}" type="button" role="tab" aria-controls="cancha-${canchaId}" aria-selected="${index === 0}">
+            Cancha ${canchaId}
+          </button>
+        </li>
+      `;
+
+      tabsContentHtml += `
+        <div class="tab-pane fade ${showClass}" id="cancha-${canchaId}" role="tabpanel" aria-labelledby="tab-cancha-${canchaId}">
+          <div id="calendar-${canchaId}"></div>
+        </div>
+      `;
+    });
+
+    tabsHtml += `</ul>`;
+    tabsContentHtml += `</div>`;
+
+    // Insertar pestañas y contenido en el DOM
+    const resultadoDiv = document.getElementById('resultado-fixture');
+    resultadoDiv.innerHTML = tabsHtml + tabsContentHtml;
+
+    // Crear calendarios y guardarlos para referencia
+    const calendarios = {};
+
+    canchas.forEach(canchaId => {
+      const calendarEl = document.getElementById(`calendar-${canchaId}`);
 
       const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'timeGridWeek',
         slotMinTime: '09:00:00',
         slotMaxTime: '21:00:00',
         allDaySlot: false,
-        height: 'auto', // Ajusta altura automáticamente
-        locale: 'es', // Configura idioma español
-
-        // Fecha inicial: la del primer partido si existe, sino hoy
+        locale: 'es',
+        height: 'auto',
         initialDate: data.partidos.length > 0
           ? new Date(data.partidos[0].fecha_hora).toISOString().slice(0, 10)
           : new Date().toISOString().slice(0, 10),
-
-        events: data.partidos.map(p => {
+        events: (partidosPorCancha[canchaId] || []).map(p => {
           const start = new Date(p.fecha_hora);
           const end = new Date(start.getTime() + duracion * 60000);
-
           return {
             title: `${p.pareja_1.nombre} vs ${p.pareja_2.nombre}`,
             start: start.toISOString(),
             end: end.toISOString(),
-            backgroundColor: coloresPorCancha[p.cancha_id] || '#95a5a6',
-            borderColor: coloresPorCancha[p.cancha_id] || '#95a5a6'
+            backgroundColor: coloresPorCancha[canchaId] || '#95a5a6',
+            borderColor: coloresPorCancha[canchaId] || '#95a5a6'
           };
         }),
-
         headerToolbar: {
           left: 'prev,next today',
           center: 'title',
@@ -619,11 +644,72 @@
       });
 
       calendar.render();
-    })
-    .catch(error => {
-      console.error('Error generando fixture:', error);
-      document.getElementById('resultado-fixture').innerHTML = `<div class="alert alert-danger">Error al generar fixture: ${error.message}</div>`;
+      calendarios[canchaId] = calendar;
     });
+
+    // Escuchar cambio de pestaña para actualizar tamaño del calendario activo
+    const tabsElement = document.getElementById('canchasTabs');
+    tabsElement.querySelectorAll('button[data-bs-toggle="tab"]').forEach(tabBtn => {
+      tabBtn.addEventListener('shown.bs.tab', (event) => {
+        const canchaId = event.target.id.replace('tab-cancha-', '');
+        if (calendarios[canchaId]) {
+          calendarios[canchaId].updateSize();
+        }
+      });
+    });
+
+    // Llamar updateSize para la pestaña activa al cargar
+    const primeraCancha = canchas[0];
+    if (calendarios[primeraCancha]) {
+      calendarios[primeraCancha].updateSize();
+    }
+
+  })
+  .catch(error => {
+    console.error('Error generando fixture:', error);
+    document.getElementById('resultado-fixture').innerHTML = `<div class="alert alert-danger">Error al generar fixture: ${error.message}</div>`;
   });
+});
+
+
 </script>
 
+<style>
+/* Reduce la altura de los bloques horarios para un calendario más compacto */
+.fc-timegrid-slot {
+  height: 20px !important; /* Más pequeño que antes, prueba con valores entre 15 y 25 */
+  min-height: 20px !important;
+}
+
+/* Ajusta el alto del contenedor para que el calendario no sobresalga */
+#calendario-fixture .tab-pane {
+  padding: 1rem;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+/* Mejora la visibilidad del texto dentro del evento */
+.fc-event {
+  font-size: 0.75rem !important;  /* Más pequeña que antes, ajusta a lo que necesites */
+  padding: 2px 4px !important;
+  white-space: normal;
+  line-height: 1.1;
+}
+
+/* Evita que el texto de los eventos se corte */
+.fc-event-title {
+  font-size: 0.75rem !important;
+  white-space: normal !important;
+  word-break: break-word;
+  font-weight: bold;
+  text-align: center; 
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Mejora visual para que no se vean todos los calendarios juntos */
+#calendario-fixture .tab-content > .tab-pane:not(.active) {
+  display: none;
+}
+
+</style>

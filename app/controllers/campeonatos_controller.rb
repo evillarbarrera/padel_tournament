@@ -127,6 +127,7 @@ class CampeonatosController < ApplicationController
       fecha_fin = Date.parse(params[:fecha_fin])
       duracion = params[:duracion].to_i
       canchas_ids = params[:canchas].map(&:to_i) rescue []
+
       parejas = Pareja
                   .where(estado: 'pendiente')
                   .includes(inscripcion_1: :user, inscripcion_2: :user)
@@ -137,7 +138,6 @@ class CampeonatosController < ApplicationController
                     )
                   end
 
-      # Validar que haya al menos 2 parejas y al menos 1 cancha seleccionada
       if canchas_ids.blank? || parejas.size < 1
         return render json: { error: 'Se requieren al menos dos parejas y una cancha' }, status: :unprocessable_entity
       end
@@ -145,12 +145,13 @@ class CampeonatosController < ApplicationController
       total_parejas_necesarias = params[:cupo_max].to_i > 0 ? params[:cupo_max].to_i : 8
       faltantes = total_parejas_necesarias - parejas.size
 
-      # Agregar parejas ficticias si hacen falta
       if faltantes > 0
         faltantes.times do |i|
           parejas << OpenStruct.new(id: nil, nombre: "Pareja faltante #{i + 1}")
         end
       end
+
+      canchas = Cancha.where(id: canchas_ids).index_by(&:id)
 
       partidos = []
       emparejamientos = parejas.combination(2).to_a.shuffle
@@ -158,10 +159,14 @@ class CampeonatosController < ApplicationController
       cancha_index = 0
 
       emparejamientos.each do |par|
+        cancha_id = canchas_ids[cancha_index % canchas_ids.size]
+        cancha = canchas[cancha_id]
+
         partidos << {
           pareja_1: { id: par[0].id, nombre: par[0].nombre },
           pareja_2: { id: par[1].id, nombre: par[1].nombre },
-          cancha_id: canchas_ids[cancha_index % canchas_ids.size],
+          cancha_id: cancha_id,
+          cancha_nombre: cancha&.nombre || "Cancha #{cancha_id}",
           fecha_hora: current_time
         }
 
@@ -178,6 +183,7 @@ class CampeonatosController < ApplicationController
       render json: { error: e.message, backtrace: e.backtrace[0..5] }, status: 500
     end
   end
+
 
 
 
