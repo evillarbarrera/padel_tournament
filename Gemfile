@@ -46,7 +46,7 @@ gem "thruster", require: false
 gem 'devise'
 ruby "3.3.0"
 gem 'cocoon'
-gem 'cloudinary', '~> 1.19.0'
+gem 'cloudinary', '~> 2.3.1'
 gem "activestorage-cloudinary-service"
 gem 'sidekiq'
 gem 'font-awesome-rails'
