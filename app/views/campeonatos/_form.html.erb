@@ -714,41 +714,41 @@
 
 
 <style>
-/* Reduce la altura de los bloques horarios para un calendario más compacto */
-.fc-timegrid-slot {
-  height: 20px !important; /* Más pequeño que antes, prueba con valores entre 15 y 25 */
-  min-height: 20px !important;
-}
 
-/* Ajusta el alto del contenedor para que el calendario no sobresalga */
-#calendario-fixture .tab-pane {
-  padding: 1rem;
-  max-height: 600px;
-  overflow-y: auto;
-}
+  .fc-timegrid-slot {
+    height: 20px !important; /* Más pequeño que antes, prueba con valores entre 15 y 25 */
+    min-height: 20px !important;
+  }
 
-/* Mejora la visibilidad del texto dentro del evento */
-.fc-event {
-  font-size: 0.75rem !important;  /* Más pequeña que antes, ajusta a lo que necesites */
-  padding: 2px 4px !important;
-  white-space: normal;
-  line-height: 1.1;
-}
+  /* Ajusta el alto del contenedor para que el calendario no sobresalga */
+  #calendario-fixture .tab-pane {
+    padding: 1rem;
+    max-height: 600px;
+    overflow-y: auto;
+  }
 
-/* Evita que el texto de los eventos se corte */
-.fc-event-title {
-  font-size: 0.75rem !important;
-  white-space: normal !important;
-  word-break: break-word;
-  font-weight: bold;
-  text-align: center; 
-  padding: 0 !important;
-  margin: 0 !important;
-}
+  /* Mejora la visibilidad del texto dentro del evento */
+  .fc-event {
+    font-size: 0.75rem !important;  /* Más pequeña que antes, ajusta a lo que necesites */
+    padding: 2px 4px !important;
+    white-space: normal;
+    line-height: 1.1;
+  }
 
-/* Mejora visual para que no se vean todos los calendarios juntos */
-#calendario-fixture .tab-content > .tab-pane:not(.active) {
-  display: none;
-}
+  /* Evita que el texto de los eventos se corte */
+  .fc-event-title {
+    font-size: 0.75rem !important;
+    white-space: normal !important;
+    word-break: break-word;
+    font-weight: bold;
+    text-align: center; 
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Mejora visual para que no se vean todos los calendarios juntos */
+  #calendario-fixture .tab-content > .tab-pane:not(.active) {
+    display: none;
+  }
 
 </style>

@@ -152,6 +152,7 @@ class CampeonatosController < ApplicationController
         end
       end
 
+      # Obtener horarios bloqueados para el campeonato
       bloques_bloqueados = HorarioBloqueado.where(campeonato_id: campeonato_id)
 
       partidos = []
@@ -164,27 +165,31 @@ class CampeonatosController < ApplicationController
         max_intentos = 1000
 
         loop do
-          # Verifica si el horario actual supera el límite de fecha y hora
+          # Validar que current_time no exceda fecha_fin a las 21:00
           if current_time > fecha_fin.to_datetime.change(hour: 21, min: 0)
             return render json: { error: 'No hay más espacio disponible dentro del rango de fechas.' }, status: :unprocessable_entity
           end
 
-          # Verifica si el horario actual se cruza con algún bloque bloqueado
-          bloqueado = bloques_bloqueados.any? do |bloque|
-            inicio_partido = current_time
-            fin_partido = current_time + duracion.minutes
-            inicio_bloqueo = bloque.fechahora_inicio
-            fin_bloqueo = bloque.fechahora_fin
+          # Verifica si el horario actual choca con algún bloqueado
+          partido_inicio = current_time
+          partido_fin = current_time + duracion.minutes
 
-            inicio_partido < fin_bloqueo && fin_partido > inicio_bloqueo
+          bloqueado = bloques_bloqueados.any? do |bloque|
+            bloque_inicio = bloque.fechahora_inicio
+            bloque_fin = bloque.fechahora_fin
+            # Verificar si los intervalos se traslapan
+            (partido_inicio < bloque_fin) && (partido_fin > bloque_inicio)
           end
 
+          # Si no está bloqueado, asignar partido y salir del loop
           break unless bloqueado
 
-          # Avanza al siguiente slot si está bloqueado
+          # Si está bloqueado, avanzar al siguiente slot de tiempo
           current_time += duracion.minutes
+
+          # Si pasamos las 21:00, mover al día siguiente a las 9:00
           if current_time.hour >= 21
-            current_time = (current_time + 1.day).change(hour: 9, min: 0)
+            current_time = current_time.beginning_of_day + 1.day + 9.hours
           end
 
           intentos += 1
@@ -200,19 +205,24 @@ class CampeonatosController < ApplicationController
           fecha_hora: current_time
         }
 
+        # Avanzar el tiempo para el siguiente partido
         current_time += duracion.minutes
+
+        # Si pasamos las 21:00, mover al día siguiente a las 9:00
         if current_time.hour >= 21
-          current_time = (current_time + 1.day).change(hour: 9, min: 0)
+          current_time = current_time.beginning_of_day + 1.day + 9.hours
         end
 
         cancha_index += 1
       end
 
-      render json: { partidos: partidos }
+      # También puedes devolver los bloqueos para el frontend
+      render json: { partidos: partidos, bloqueos: bloques_bloqueados.map { |b| { fechahora_inicio: b.fechahora_inicio, fechahora_fin: b.fechahora_fin } } }
     rescue => e
       render json: { error: e.message, backtrace: e.backtrace[0..5] }, status: 500
     end
   end
+
 
 
 
