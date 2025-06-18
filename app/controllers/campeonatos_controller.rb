@@ -152,7 +152,6 @@ class CampeonatosController < ApplicationController
         end
       end
 
-      # Obtener horarios bloqueados para el campeonato
       bloques_bloqueados = HorarioBloqueado.where(campeonato_id: campeonato_id)
 
       partidos = []
@@ -165,16 +164,19 @@ class CampeonatosController < ApplicationController
         max_intentos = 1000
 
         loop do
-          # Validar que current_time no exceda fecha_fin a las 21:00
+          # Verifica si el horario actual supera el límite de fecha y hora
           if current_time > fecha_fin.to_datetime.change(hour: 21, min: 0)
             return render json: { error: 'No hay más espacio disponible dentro del rango de fechas.' }, status: :unprocessable_entity
           end
 
-          # Verifica si el horario actual choca con algún bloqueado
+          # Verifica si el horario actual se cruza con algún bloque bloqueado
           bloqueado = bloques_bloqueados.any? do |bloque|
-            rango_partido = current_time...(current_time + duracion.minutes)
-            rango_bloqueado = bloque.fechahora_inicio...bloque.fechahora_fin
-            rango_partido.overlaps?(rango_bloqueado)
+            inicio_partido = current_time
+            fin_partido = current_time + duracion.minutes
+            inicio_bloqueo = bloque.fechahora_inicio
+            fin_bloqueo = bloque.fechahora_fin
+
+            inicio_partido < fin_bloqueo && fin_partido > inicio_bloqueo
           end
 
           break unless bloqueado
@@ -182,7 +184,7 @@ class CampeonatosController < ApplicationController
           # Avanza al siguiente slot si está bloqueado
           current_time += duracion.minutes
           if current_time.hour >= 21
-            current_time = current_time.beginning_of_day + 1.day + 9.hours
+            current_time = (current_time + 1.day).change(hour: 9, min: 0)
           end
 
           intentos += 1
@@ -200,7 +202,7 @@ class CampeonatosController < ApplicationController
 
         current_time += duracion.minutes
         if current_time.hour >= 21
-          current_time = current_time.beginning_of_day + 1.day + 9.hours
+          current_time = (current_time + 1.day).change(hour: 9, min: 0)
         end
 
         cancha_index += 1
@@ -211,6 +213,7 @@ class CampeonatosController < ApplicationController
       render json: { error: e.message, backtrace: e.backtrace[0..5] }, status: 500
     end
   end
+
 
 
 
