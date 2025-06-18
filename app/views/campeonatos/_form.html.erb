@@ -529,12 +529,8 @@
     });
   });
 </script>
-<script>
-  // Función para parsear string datetime como UTC (agrega "T" y "Z")
-  function parseDateAsUTC(dateString) {
-    return new Date(dateString.replace(' ', 'T') + 'Z');
-  }
 
+<script>
   document.getElementById('btn-generar-fixture').addEventListener('click', function (event) {
     event.preventDefault();
 
@@ -593,6 +589,7 @@
       const data = await response.json();
 
       if (!response.ok) {
+        // Mostrar error detallado del backend
         const mensajeError = data.error || 'Error desconocido del servidor.';
         document.getElementById('resultado-fixture').innerHTML = `
           <div class="alert alert-danger">Error al generar fixture: ${mensajeError}</div>`;
@@ -648,7 +645,7 @@
         const calendarEl = document.getElementById(`calendar-${canchaId}`);
 
         const partidosEventos = (partidosPorCancha[canchaId] || []).map(p => {
-          const start = parseDateAsUTC(p.fecha_hora);
+          const start = new Date(p.fecha_hora);
           const end = new Date(start.getTime() + duracion * 60000);
           return {
             title: `${p.pareja_1.nombre} vs ${p.pareja_2.nombre}`,
@@ -661,8 +658,8 @@
 
         const eventosBloqueados = bloqueos.map(b => ({
           title: 'Bloqueado',
-          start: parseDateAsUTC(b.fechahora_inicio).toISOString(),
-          end: parseDateAsUTC(b.fechahora_fin).toISOString(),
+          start: b.fechahora_inicio,
+          end: b.fechahora_fin,
           backgroundColor: '#cccccc',
           borderColor: '#999999',
           rendering: 'background',
@@ -678,7 +675,7 @@
           locale: 'es',
           height: 'auto',
           initialDate: data.partidos.length > 0
-            ? parseDateAsUTC(data.partidos[0].fecha_hora).toISOString().slice(0, 10)
+            ? new Date(data.partidos[0].fecha_hora).toISOString().slice(0, 10)
             : new Date().toISOString().slice(0, 10),
           events: [...partidosEventos, ...eventosBloqueados],
           headerToolbar: {
