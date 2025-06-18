@@ -179,7 +179,7 @@ class CampeonatosController < ApplicationController
                 pareja_1: { id: par[0].id, nombre: par[0].nombre },
                 pareja_2: { id: par[1].id, nombre: par[1].nombre },
                 cancha_id: cancha_id,
-                fecha_hora: current_time
+                fecha_hora: partido_inicio
               }
               partido_asignado = true
               break
@@ -204,11 +204,21 @@ class CampeonatosController < ApplicationController
       end
 
       render json: {
-        partidos: partidos,
-        bloqueos: bloques_bloqueados.map { |b| {
-          fechahora_inicio: b.fechahora_inicio,
-          fechahora_fin: b.fechahora_fin
-        }}
+        partidos: partidos.map do |p|
+          {
+            pareja_1: p[:pareja_1],
+            pareja_2: p[:pareja_2],
+            cancha_id: p[:cancha_id],
+            # Enviar fecha en formato ISO8601 sin zona (sin 'Z')
+            fecha_hora: p[:fecha_hora].strftime("%Y-%m-%dT%H:%M:%S")
+          }
+        end,
+        bloqueos: bloques_bloqueados.map do |b|
+          {
+            fechahora_inicio: b.fechahora_inicio.strftime("%Y-%m-%dT%H:%M:%S"),
+            fechahora_fin: b.fechahora_fin.strftime("%Y-%m-%dT%H:%M:%S")
+          }
+        end
       }
     rescue => e
       render json: { error: e.message, backtrace: e.backtrace[0..5] }, status: 500

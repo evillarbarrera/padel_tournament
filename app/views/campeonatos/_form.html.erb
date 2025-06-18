@@ -567,13 +567,6 @@
     6: '#2ecc71'
   };
 
-  // Función para convertir fecha con formato "YYYY-MM-DD HH:mm:ss" a ISO local sin 'Z'
-  function fechaLocalISO(fechaStr) {
-    const parts = fechaStr.split(/[\s:-]/); // [YYYY, MM, DD, HH, mm, ss]
-    const fecha = new Date(parts[0], parts[1] - 1, parts[2], parts[3], parts[4], parts[5]);
-    return fecha.toISOString().slice(0, 19); // "YYYY-MM-DDTHH:mm:ss"
-  }
-
   fetch('/generar_fixture', {
     method: 'POST',
     headers: {
@@ -651,39 +644,37 @@
       const calendarEl = document.getElementById(`calendar-${canchaId}`);
 
       const partidosEventos = (partidosPorCancha[parseInt(canchaId)] || []).map(p => {
-        const start = new Date(p.fecha_hora.replace(' ', 'T'));
+        const start = new Date(p.fecha_hora);
         const end = new Date(start.getTime() + duracion * 60000);
         return {
           title: `${p.pareja_1.nombre} vs ${p.pareja_2.nombre}`,
-          start: start.toISOString().slice(0, 19),
-          end: end.toISOString().slice(0, 19),
+          start: start.toISOString(),
+          end: end.toISOString(),
           backgroundColor: coloresPorCancha[canchaId] || '#95a5a6',
           borderColor: coloresPorCancha[canchaId] || '#95a5a6'
         };
       });
 
-      const eventosBloqueados = bloqueos.map(b => {
-        return {
-          title: 'Bloqueado',
-          start: fechaLocalISO(b.fechahora_inicio),
-          end: fechaLocalISO(b.fechahora_fin),
-          backgroundColor: '#cccccc',
-          borderColor: '#999999',
-          display: 'background',
-          overlap: false
-        };
-      });
+      const eventosBloqueados = bloqueos.map(b => ({
+        title: 'Bloqueado',
+        start: b.fechahora_inicio,
+        end: b.fechahora_fin,
+        backgroundColor: '#cccccc',
+        borderColor: '#999999',
+        display: 'background',
+        overlap: false
+      }));
 
       const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'timeGridWeek',
         slotMinTime: '08:00:00',
         slotMaxTime: '23:00:00',
-        timeZone: 'America/Santiago',
+        timeZone: 'local',
         allDaySlot: false,
         locale: 'es',
         height: 'auto',
         initialDate: data.partidos.length > 0
-          ? new Date(data.partidos[0].fecha_hora.replace(' ', 'T')).toISOString().slice(0, 10)
+          ? new Date(data.partidos[0].fecha_hora).toISOString().slice(0, 10)
           : new Date().toISOString().slice(0, 10),
         events: [...partidosEventos, ...eventosBloqueados],
         headerToolbar: {
