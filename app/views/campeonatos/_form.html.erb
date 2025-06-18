@@ -444,35 +444,36 @@
         // Orden de días según tu tabla (empieza en Lunes)
         const diasJS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
 
-        data.forEach(bloqueo => {
-          if (!bloqueo.fechahora_inicio) {
-            console.warn("Bloqueo sin fecha de inicio:", bloqueo);
-            return;
-          }
+      data.forEach(bloqueo => {
+        if (!bloqueo.fechahora_inicio) {
+          console.warn("Bloqueo sin fecha de inicio:", bloqueo);
+          return;
+        }
 
-          const fecha = new Date(bloqueo.fechahora_inicio);
-          let diaIndex = fecha.getDay(); // 0 (Domingo) - 6 (Sábado)
-          diaIndex = (diaIndex + 6) % 7; // Ajustar para que 0 = Lunes
-          const dia = diasJS[diaIndex];
-          const hora = fecha.getHours();
+        const fecha = new Date(bloqueo.fechahora_inicio);
 
-          console.log(`✅ Procesando bloqueo: ${dia} ${hora}:00`);
+        // Obtener valores en UTC para evitar desajustes por zona horaria
+        const hora = fecha.getUTCHours();
+        let diaIndex = fecha.getUTCDay();
+        diaIndex = (diaIndex + 6) % 7;
+        const dia = dias[diaIndex]; // ["Lunes", ..., "Domingo"]
 
-          // Solo marcar si la hora está en el rango visible
-          if (hora < 8 || hora > 22) {
-            console.log(`⛔ Bloqueo fuera del rango visible: ${dia} ${hora}`);
-            return;
-          }
+        console.log(`✅ Procesando bloqueo UTC: ${dia} ${hora}:00`);
 
-          const selector = `.bloque-horario[data-dia="${dia}"][data-hora="${hora}"]`;
-          const cell = document.querySelector(selector);
+        if (hora < 8 || hora > 22) {
+          console.log(`⛔ Bloqueo fuera del rango visible: ${dia} ${hora}`);
+          return;
+        }
 
-          if (cell) {
-            cell.classList.add("table-primary");
-          } else {
-            console.warn(`⚠️ No se encontró celda para ${dia} ${hora}`);
-          }
-        });
+        const selector = `.bloque-horario[data-dia="${dia}"][data-hora="${hora}"]`;
+        const cell = document.querySelector(selector);
+
+        if (cell) {
+          cell.classList.add("table-primary");
+        } else {
+          console.warn(`⚠️ No se encontró celda para ${dia} ${hora}`);
+        }
+      });
       })
       .catch(error => {
         console.error("❌ Error en fetch de bloqueos:", error);
