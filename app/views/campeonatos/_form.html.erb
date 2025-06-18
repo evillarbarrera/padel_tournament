@@ -395,26 +395,146 @@
 <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
 
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-  console.log("✅ DOM completamente cargado");
+  document.addEventListener("DOMContentLoaded", function () {
+    console.log("✅ DOM completamente cargado");
 
-  const coloresPorFase = {
-    grupo: "#3498db",
-    cuartos: "#e67e22",
-    semifinal: "#9b59b6",
-    final: "#e74c3c"
-  };
+    const dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+    const bloqueadorBody = document.getElementById("bloqueador-body");
+    const campeonatoId = <%= @campeonato.id %>; // Debe estar presente en tu template
 
-  const fasesOrdenadas = ["grupo", "cuartos", "semifinal", "final"];
+    // Construcción de la tabla - filas desde las 08 hasta las 22 horas
+    for (let h = 8; h <= 22; h++) {
+      const row = document.createElement("tr");
 
-  const formatearFase = (fase, grupo = null) => {
-    if (fase === "grupo") return `Grupo ${grupo || ""}`;
-    return fase.charAt(0).toUpperCase() + fase.slice(1);
-  };
+      const hora = document.createElement("td");
+      hora.textContent = `${h.toString().padStart(2, "0")}:00`;
+      row.appendChild(hora);
 
+      dias.forEach(dia => {
+        const cell = document.createElement("td");
+        cell.dataset.hora = h;
+        cell.dataset.dia = dia;
+        cell.style.cursor = "pointer";
+        cell.classList.add("bloque-horario");
+
+        cell.addEventListener("click", function () {
+          this.classList.toggle("table-primary");
+        });
+
+        row.appendChild(cell);
+      });
+
+      bloqueadorBody.appendChild(row);
+    }
+
+    // Cargar bloqueos guardados
+    const urlBloqueos = `/campeonatos/${campeonatoId}/bloqueos`;
+    console.log("🔄 Cargando bloqueos desde:", urlBloqueos);
+
+    fetch(urlBloqueos)
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`❌ Error al cargar bloqueos (${res.status})`);
+        }
+        return res.json();
+      })
+      .then(data => {
+        console.log("📦 Bloqueos recibidos:", data);
+
+        // Días en JS: Domingo = 0, Lunes = 1, ...
+        const diasJS = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+
+        data.forEach(bloqueo => {
+          if (!bloqueo.fechahora_inicio) {
+            console.warn("Bloqueo sin fecha de inicio:", bloqueo);
+            return;
+          }
+
+          const fecha = new Date(bloqueo.fechahora_inicio);
+          const dia = diasJS[fecha.getDay()]; // nombre día local
+          const hora = fecha.getHours();      // hora local
+
+          console.log(`Procesando bloqueo: Día local: ${dia}, Hora local: ${hora}`);
+
+          if (!dias.includes(dia)) {
+            console.warn(`Día no reconocido en tabla: ${dia}`);
+            return;
+          }
+
+          // Solo marcar si la hora está en el rango visible
+          if (hora < 8 || hora > 22) {
+            console.log(`Bloqueo fuera del rango visible: ${dia} ${hora}`);
+            return;
+          }
+
+          const selector = `.bloque-horario[data-dia="${dia}"][data-hora="${hora}"]`;
+          const cell = document.querySelector(selector);
+
+          if (cell) {
+            cell.classList.add("table-primary");
+          } else {
+            console.warn(`No se encontró celda para ${dia} ${hora}`);
+          }
+        });
+      })
+      .catch(error => {
+        console.error("❌ Error en fetch de bloqueos:", error);
+      });
+
+    // Guardar bloqueos
+    document.getElementById("guardar-bloqueos").addEventListener("click", () => {
+      const fecha_inicio = document.getElementById("fecha_inicio_bloqueo").value;
+      const fecha_termino = document.getElementById("fecha_termino_bloqueo").value;
+
+      const seleccionados = Array.from(document.querySelectorAll(".bloque-horario.table-primary"))
+        .map(cell => ({
+          dia: cell.dataset.dia,
+          hora: cell.dataset.hora
+        }));
+
+      console.log("📤 Enviando bloqueos:", seleccionados);
+      console.log("📅 Fecha inicio:", fecha_inicio);
+      console.log("📅 Fecha término:", fecha_termino);
+
+      const urlGuardar = `/campeonatos/${campeonatoId}/guardar_bloqueos`;
+      console.log("📨 URL POST:", urlGuardar);
+
+      fetch(urlGuardar, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": document.querySelector("[name='csrf-token']").content
+        },
+        body: JSON.stringify({
+          bloqueos: seleccionados,
+          fecha_inicio,
+          fecha_termino
+        })
+      })
+        .then(res => {
+          console.log("🔽 Respuesta POST status:", res.status);
+          if (!res.ok) {
+            throw new Error(`❌ Error al guardar bloqueos (${res.status})`);
+          }
+          return res.json();
+        })
+        .then(data => {
+          console.log("✅ Bloqueos guardados correctamente:", data);
+          alert("Bloqueos guardados con éxito.");
+        })
+        .catch(error => {
+          console.error("❌ Error al guardar bloqueos:", error);
+          alert("Error al guardar bloqueos.");
+        });
+    });
+  });
+</script>
+
+<script>
   document.getElementById('btn-generar-fixture').addEventListener('click', function (event) {
     event.preventDefault();
 
+    // Obtener datos del formulario
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     const fechaInicio = document.getElementById('fecha-inicio').value;
     const fechaFin = document.getElementById('fecha-fin').value;
@@ -423,10 +543,32 @@ document.addEventListener("DOMContentLoaded", function () {
     const campeonatoId = parseInt(document.getElementById('campeonato-id').value);
     const canchas = Array.from(document.querySelectorAll('input[name="canchas[]"]:checked')).map(el => el.value);
 
-    if (!fechaInicio || !fechaFin || isNaN(duracion) || canchas.length === 0 || isNaN(campeonatoId)) {
-      alert("Completa todos los campos correctamente.");
+    // Validaciones básicas antes de enviar
+    if (!fechaInicio || !fechaFin) {
+      alert('Por favor, ingresa fecha de inicio y fecha de fin.');
       return;
     }
+    if (isNaN(duracion) || duracion <= 0) {
+      alert('Por favor, ingresa una duración válida.');
+      return;
+    }
+    if (canchas.length === 0) {
+      alert('Selecciona al menos una cancha.');
+      return;
+    }
+    if (isNaN(campeonatoId) || campeonatoId <= 0) {
+      alert('Id de campeonato inválido.');
+      return;
+    }
+
+    const coloresPorCancha = {
+      1: '#1abc9c',
+      2: '#3498db',
+      3: '#9b59b6',
+      4: '#e67e22',
+      5: '#e74c3c',
+      6: '#2ecc71'
+    };
 
     fetch('/generar_fixture', {
       method: 'POST',
@@ -447,47 +589,45 @@ document.addEventListener("DOMContentLoaded", function () {
       const data = await response.json();
 
       if (!response.ok) {
+        // Mostrar error detallado del backend
+        const mensajeError = data.error || 'Error desconocido del servidor.';
         document.getElementById('resultado-fixture').innerHTML = `
-          <div class="alert alert-danger">❌ Error: ${data.error || "Desconocido"}</div>`;
+          <div class="alert alert-danger">Error al generar fixture: ${mensajeError}</div>`;
         return;
       }
 
-      const partidosPorCancha = {};
-      const resumenFases = {};
+      if (!data.partidos || data.partidos.length === 0) {
+        document.getElementById('resultado-fixture').innerHTML = `
+          <div class="alert alert-warning">No se encontraron partidos para mostrar.</div>`;
+        return;
+      }
 
+      // Agrupar partidos por cancha
+      const partidosPorCancha = {};
       data.partidos.forEach(p => {
         if (!partidosPorCancha[p.cancha_id]) partidosPorCancha[p.cancha_id] = [];
         partidosPorCancha[p.cancha_id].push(p);
-
-        resumenFases[p.fase] = (resumenFases[p.fase] || 0) + 1;
       });
 
-      const canchas = Object.keys(partidosPorCancha);
+      // Construir tabs y contenido
       let tabsHtml = `<ul class="nav nav-tabs" id="canchasTabs" role="tablist">`;
       let tabsContentHtml = `<div class="tab-content" id="canchasTabsContent">`;
 
       canchas.forEach((canchaId, index) => {
-        const active = index === 0 ? "active" : "";
-        const show = index === 0 ? "show active" : "";
+        const activeClass = index === 0 ? 'active' : '';
+        const showClass = index === 0 ? 'show active' : '';
 
         tabsHtml += `
           <li class="nav-item" role="presentation">
-            <button class="nav-link ${active}" id="tab-${canchaId}" data-bs-toggle="tab" data-bs-target="#calendar-${canchaId}" type="button" role="tab" aria-controls="calendar-${canchaId}" aria-selected="${index === 0}">
+            <button class="nav-link ${activeClass}" id="tab-cancha-${canchaId}" data-bs-toggle="tab" data-bs-target="#cancha-${canchaId}" type="button" role="tab" aria-controls="cancha-${canchaId}" aria-selected="${index === 0}">
               Cancha ${canchaId}
             </button>
           </li>
         `;
 
         tabsContentHtml += `
-          <div class="tab-pane fade ${show}" id="calendar-${canchaId}" role="tabpanel" aria-labelledby="tab-${canchaId}">
-            <div class="mb-2">
-              <label for="filtro-fase-${canchaId}">🔎 Filtrar por fase:</label>
-              <select class="form-select form-select-sm filtro-fase" data-cancha="${canchaId}">
-                <option value="">Todas</option>
-                ${fasesOrdenadas.map(f => `<option value="${f}">${formatearFase(f)}</option>`).join("")}
-              </select>
-            </div>
-            <div id="fc-${canchaId}"></div>
+          <div class="tab-pane fade ${showClass}" id="cancha-${canchaId}" role="tabpanel" aria-labelledby="tab-cancha-${canchaId}">
+            <div id="calendar-${canchaId}"></div>
           </div>
         `;
       });
@@ -495,67 +635,53 @@ document.addEventListener("DOMContentLoaded", function () {
       tabsHtml += `</ul>`;
       tabsContentHtml += `</div>`;
 
-      // Resumen tabla
-      let resumenHtml = `
-        <div class="mt-3">
-          <h5>📊 Resumen por fase</h5>
-          <table class="table table-bordered table-sm">
-            <thead><tr><th>Fase</th><th>Partidos</th></tr></thead>
-            <tbody>
-              ${Object.entries(resumenFases).map(([fase, count]) => `
-                <tr><td>${formatearFase(fase)}</td><td>${count}</td></tr>
-              `).join("")}
-            </tbody>
-          </table>
-        </div>
-      `;
-
-      document.getElementById('resultado-fixture').innerHTML = `
-        <div class="alert alert-success">✅ Fixture generado con éxito.</div>
-        ${tabsHtml}
-        ${tabsContentHtml}
-        ${resumenHtml}
-      `;
+      const resultadoDiv = document.getElementById('resultado-fixture');
+      resultadoDiv.innerHTML = tabsHtml + tabsContentHtml;
 
       const calendarios = {};
+      const bloqueos = data.bloqueos || [];
+
       canchas.forEach(canchaId => {
-        const calendarEl = document.getElementById(`fc-${canchaId}`);
-        const eventos = partidosPorCancha[canchaId].map(p => {
+        const calendarEl = document.getElementById(`calendar-${canchaId}`);
+
+        const partidosEventos = (partidosPorCancha[canchaId] || []).map(p => {
           const start = new Date(p.fecha_hora);
           const end = new Date(start.getTime() + duracion * 60000);
-
           return {
-            title: `[${formatearFase(p.fase, p.grupo)}] ${p.pareja_1.nombre} vs ${p.pareja_2.nombre}`,
+            title: `${p.pareja_1.nombre} vs ${p.pareja_2.nombre}`,
             start: start.toISOString(),
             end: end.toISOString(),
-            backgroundColor: coloresPorFase[p.fase] || '#95a5a6',
-            borderColor: coloresPorFase[p.fase] || '#95a5a6',
-            extendedProps: {
-              fase: p.fase,
-              grupo: p.grupo
-            }
+            backgroundColor: coloresPorCancha[canchaId] || '#95a5a6',
+            borderColor: coloresPorCancha[canchaId] || '#95a5a6'
           };
         });
 
+        const eventosBloqueados = bloqueos.map(b => ({
+          title: 'Bloqueado',
+          start: b.fechahora_inicio,
+          end: b.fechahora_fin,
+          backgroundColor: '#cccccc',
+          borderColor: '#999999',
+          rendering: 'background',
+          overlap: false,
+          display: 'background'
+        }));
+
         const calendar = new FullCalendar.Calendar(calendarEl, {
           initialView: 'timeGridWeek',
-          timeZone: 'local',
           slotMinTime: '08:00:00',
           slotMaxTime: '23:00:00',
           allDaySlot: false,
           locale: 'es',
           height: 'auto',
-          initialDate: data.partidos[0]?.fecha_hora?.slice(0, 10) || new Date().toISOString().slice(0, 10),
-          events: eventos,
+          initialDate: data.partidos.length > 0
+            ? new Date(data.partidos[0].fecha_hora).toISOString().slice(0, 10)
+            : new Date().toISOString().slice(0, 10),
+          events: [...partidosEventos, ...eventosBloqueados],
           headerToolbar: {
             left: 'prev,next today',
             center: 'title',
             right: 'timeGridWeek,timeGridDay'
-          },
-          eventDidMount: function(info) {
-            const { fase, grupo } = info.event.extendedProps;
-            const tooltip = `${formatearFase(fase, grupo)}\n${info.event.title}`;
-            info.el.setAttribute('title', tooltip);
           }
         });
 
@@ -563,77 +689,67 @@ document.addEventListener("DOMContentLoaded", function () {
         calendarios[canchaId] = calendar;
       });
 
-      // Actualizar según filtro por fase
-      document.querySelectorAll('.filtro-fase').forEach(select => {
-        select.addEventListener('change', function () {
-          const canchaId = this.dataset.cancha;
-          const faseFiltro = this.value;
-          const calendar = calendarios[canchaId];
-
-          calendar.getEvents().forEach(ev => {
-            if (!faseFiltro || ev.extendedProps.fase === faseFiltro) {
-              ev.setProp('display', 'auto');
-            } else {
-              ev.setProp('display', 'none');
-            }
-          });
-        });
-      });
-
+      // Ajustar tamaño calendario al cambiar tabs
       document.querySelectorAll('#canchasTabs button[data-bs-toggle="tab"]').forEach(tabBtn => {
         tabBtn.addEventListener('shown.bs.tab', (event) => {
-          const canchaId = event.target.dataset.bsTarget.replace('#calendar-', '');
-          calendarios[canchaId]?.updateSize();
+          const canchaId = event.target.id.replace('tab-cancha-', '');
+          if (calendarios[canchaId]) {
+            calendarios[canchaId].updateSize();
+          }
         });
       });
+
+      // Ajustar tamaño al mostrar el primer calendario
+      const primeraCancha = canchas[0];
+      if (calendarios[primeraCancha]) {
+        calendarios[primeraCancha].updateSize();
+      }
+
     })
     .catch(error => {
-      console.error('❌ Error:', error);
-      document.getElementById('resultado-fixture').innerHTML = `
-        <div class="alert alert-danger">❌ Error generando fixture: ${error.message}</div>`;
+      console.error('Error generando fixture:', error);
+      document.getElementById('resultado-fixture').innerHTML = `<div class="alert alert-danger">Error al generar fixture: ${error.message}</div>`;
     });
   });
-});
 </script>
 
 
-
 <style>
+/* Reduce la altura de los bloques horarios para un calendario más compacto */
+.fc-timegrid-slot {
+  height: 20px !important; /* Más pequeño que antes, prueba con valores entre 15 y 25 */
+  min-height: 20px !important;
+}
 
-  .fc-timegrid-slot {
-    height: 20px !important; /* Más pequeño que antes, prueba con valores entre 15 y 25 */
-    min-height: 20px !important;
-  }
+/* Ajusta el alto del contenedor para que el calendario no sobresalga */
+#calendario-fixture .tab-pane {
+  padding: 1rem;
+  max-height: 600px;
+  overflow-y: auto;
+}
 
-  /* Ajusta el alto del contenedor para que el calendario no sobresalga */
-  #calendario-fixture .tab-pane {
-    padding: 1rem;
-    max-height: 600px;
-    overflow-y: auto;
-  }
+/* Mejora la visibilidad del texto dentro del evento */
+.fc-event {
+  font-size: 0.75rem !important;  /* Más pequeña que antes, ajusta a lo que necesites */
+  padding: 2px 4px !important;
+  white-space: normal;
+  line-height: 1.1;
+}
 
-  /* Mejora la visibilidad del texto dentro del evento */
-  .fc-event {
-    font-size: 0.75rem !important;  /* Más pequeña que antes, ajusta a lo que necesites */
-    padding: 2px 4px !important;
-    white-space: normal;
-    line-height: 1.1;
-  }
+/* Evita que el texto de los eventos se corte */
+.fc-event-title {
+  font-size: 0.75rem !important;
+  white-space: normal !important;
+  word-break: break-word;
+  font-weight: bold;
+  text-align: center; 
+  padding: 0 !important;
+  margin: 0 !important;
+}
 
-  /* Evita que el texto de los eventos se corte */
-  .fc-event-title {
-    font-size: 0.75rem !important;
-    white-space: normal !important;
-    word-break: break-word;
-    font-weight: bold;
-    text-align: center; 
-    padding: 0 !important;
-    margin: 0 !important;
-  }
-
-  /* Mejora visual para que no se vean todos los calendarios juntos */
-  #calendario-fixture .tab-content > .tab-pane:not(.active) {
-    display: none;
-  }
+/* Mejora visual para que no se vean todos los calendarios juntos */
+#calendario-fixture .tab-content > .tab-pane:not(.active) {
+  display: none;
+}
 
 </style>

@@ -120,7 +120,6 @@ class CampeonatosController < ApplicationController
   end
 
   require 'ostruct'  # asegúrate que esté arriba del archivo
-
   def generar_fixture
     begin
       fecha_inicio = Date.parse(params[:fecha_inicio])
@@ -143,17 +142,18 @@ class CampeonatosController < ApplicationController
         return render json: { error: 'Se requieren al menos cuatro parejas y una cancha' }, status: :unprocessable_entity
       end
 
-      # Completar con parejas faltantes para múltiplos de 4
-      total = (parejas.size.to_f / 4).ceil * 4
-      (total - parejas.size).times do |i|
+      # Completar parejas para múltiplos de 4 (mínimo 4 parejas por grupo)
+      total_parejas = (parejas.size.to_f / 4).ceil * 4
+      (total_parejas - parejas.size).times do |i|
         parejas << OpenStruct.new(id: nil, nombre: "Pareja faltante #{i + 1}")
       end
 
-      # Agrupar de a 4
+      # Agrupar parejas en grupos de 4
       grupos = parejas.shuffle.each_slice(4).to_a
+
       partidos = []
 
-      # Generar partidos de grupo
+      # Partidos de todos contra todos en cada grupo
       grupos.each_with_index do |grupo, i|
         grupo.combination(2).each do |p1, p2|
           partidos << {
@@ -165,25 +165,57 @@ class CampeonatosController < ApplicationController
         end
       end
 
-      # Simular eliminación directa (8 parejas en cuartos)
+      # Clasifican 2 mejores de cada grupo, generan octavos
+      # Número de grupos
+      n_grupos = grupos.size
+      clasificados_por_grupo = 2
+      total_clasificados = n_grupos * clasificados_por_grupo
+
+      # Rellenar para octavos (16 equipos) si hace falta
+      total_octavos = 16
+      if total_clasificados < total_octavos
+        faltantes = total_octavos - total_clasificados
+        faltantes.times do |i|
+          partidos << {
+            fase: 'grupo',
+            grupo: nil,
+            pareja_1: OpenStruct.new(id: nil, nombre: "Clasificado faltante #{i + 1}"),
+            pareja_2: OpenStruct.new(id: nil, nombre: "Bye")
+          }
+        end
+      end
+
+      # Octavos de final (8 partidos, 16 parejas)
+      (0...8).each do |i|
+        partidos << {
+          fase: 'octavos',
+          grupo: nil,
+          pareja_1: OpenStruct.new(id: nil, nombre: "Ganador Grupo #{('A'.ord + (i * 2) / 2).chr}"),
+          pareja_2: OpenStruct.new(id: nil, nombre: "Segundo Grupo #{('A'.ord + (i * 2 + 1) / 2).chr}")
+        }
+      end
+
+      # Cuartos de final (4 partidos)
       4.times do |i|
         partidos << {
           fase: 'cuartos',
           grupo: nil,
-          pareja_1: OpenStruct.new(id: nil, nombre: "Ganador Grupo #{('A'.ord + i % grupos.size).chr}"),
-          pareja_2: OpenStruct.new(id: nil, nombre: "Clasificado #{i + 1}")
+          pareja_1: OpenStruct.new(id: nil, nombre: "Ganador Octavos #{i * 2 + 1}"),
+          pareja_2: OpenStruct.new(id: nil, nombre: "Ganador Octavos #{i * 2 + 2}")
         }
       end
 
+      # Semifinales (2 partidos)
       2.times do |i|
         partidos << {
           fase: 'semifinal',
           grupo: nil,
-          pareja_1: OpenStruct.new(id: nil, nombre: "Ganador Cuarto #{i * 2 + 1}"),
-          pareja_2: OpenStruct.new(id: nil, nombre: "Ganador Cuarto #{i * 2 + 2}")
+          pareja_1: OpenStruct.new(id: nil, nombre: "Ganador Cuartos #{i * 2 + 1}"),
+          pareja_2: OpenStruct.new(id: nil, nombre: "Ganador Cuartos #{i * 2 + 2}")
         }
       end
 
+      # Final (1 partido)
       partidos << {
         fase: 'final',
         grupo: nil,
@@ -232,8 +264,12 @@ class CampeonatosController < ApplicationController
 
           unless asignado
             current_time += duracion.minutes
-            current_time = current_time.beginning_of_day + 1.day + 9.hours if current_time.hour >= 21
-            return render json: { error: 'No hay más espacio disponible dentro del rango de fechas.' }, status: :unprocessable_entity if current_time > fecha_fin.to_datetime.change(hour: 21, min: 0)
+            if current_time.hour >= 21
+              current_time = current_time.beginning_of_day + 1.day + 9.hours
+            end
+            if current_time > fecha_fin.to_datetime.change(hour: 21, min: 0)
+              return render json: { error: 'No hay más espacio disponible dentro del rango de fechas.' }, status: :unprocessable_entity
+            end
             intentos += 1
           end
         end
