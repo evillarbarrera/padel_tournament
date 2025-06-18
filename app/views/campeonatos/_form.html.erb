@@ -655,16 +655,22 @@
           };
         });
 
-        const eventosBloqueados = bloqueos.map(b => ({
-          title: 'Bloqueado',
-          start: b.fechahora_inicio,
-          end: b.fechahora_fin,
-          backgroundColor: '#cccccc',
-          borderColor: '#999999',
-          rendering: 'background',
-          overlap: false,
-          display: 'background'
-        }));
+        const eventosBloqueados = bloqueos.map(b => {
+
+          const startIso = b.fechahora_inicio.replace(' ', 'T');
+          const endIso = b.fechahora_fin.replace(' ', 'T');
+
+          return {
+            title: 'Bloqueado',
+            start: startIso,
+            end: endIso,
+            backgroundColor: '#cccccc',
+            borderColor: '#999999',
+            rendering: 'background',
+            overlap: false,
+            display: 'background'
+          };
+        });
 
         const calendar = new FullCalendar.Calendar(calendarEl, {
           initialView: 'timeGridWeek',
