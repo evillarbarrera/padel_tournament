@@ -126,6 +126,7 @@ class CampeonatosController < ApplicationController
       fecha_inicio = Date.parse(params[:fecha_inicio])
       fecha_fin = Date.parse(params[:fecha_fin])
       duracion = params[:duracion].to_i
+      campeonato_id = params[:campeonato_id].to_i
       canchas_ids = params[:canchas].map(&:to_i) rescue []
 
       parejas = Pareja
@@ -151,7 +152,8 @@ class CampeonatosController < ApplicationController
         end
       end
 
-      canchas = Cancha.where(id: canchas_ids).index_by(&:id)
+      # Obtener horarios bloqueados para el campeonato
+      bloques_bloqueados = HorarioBloqueado.where(campeonato_id: campeonato_id)
 
       partidos = []
       emparejamientos = parejas.combination(2).to_a.shuffle
@@ -159,14 +161,40 @@ class CampeonatosController < ApplicationController
       cancha_index = 0
 
       emparejamientos.each do |par|
-        cancha_id = canchas_ids[cancha_index % canchas_ids.size]
-        cancha = canchas[cancha_id]
+        intentos = 0
+        max_intentos = 1000
+
+        loop do
+          # Validar que current_time no exceda fecha_fin a las 21:00
+          if current_time > fecha_fin.to_datetime.change(hour: 21, min: 0)
+            return render json: { error: 'No hay más espacio disponible dentro del rango de fechas.' }, status: :unprocessable_entity
+          end
+
+          # Verifica si el horario actual choca con algún bloqueado
+          bloqueado = bloques_bloqueados.any? do |bloque|
+            rango_partido = current_time...(current_time + duracion.minutes)
+            rango_bloqueado = bloque.fechahora_inicio...bloque.fechahora_fin
+            rango_partido.overlaps?(rango_bloqueado)
+          end
+
+          break unless bloqueado
+
+          # Avanza al siguiente slot si está bloqueado
+          current_time += duracion.minutes
+          if current_time.hour >= 21
+            current_time = current_time.beginning_of_day + 1.day + 9.hours
+          end
+
+          intentos += 1
+          if intentos > max_intentos
+            return render json: { error: 'No se pudo generar el fixture por exceso de bloques bloqueados.' }, status: :unprocessable_entity
+          end
+        end
 
         partidos << {
           pareja_1: { id: par[0].id, nombre: par[0].nombre },
           pareja_2: { id: par[1].id, nombre: par[1].nombre },
-          cancha_id: cancha_id,
-          cancha_nombre: cancha&.nombre || "Cancha #{cancha_id}",
+          cancha_id: canchas_ids[cancha_index % canchas_ids.size],
           fecha_hora: current_time
         }
 
@@ -183,6 +211,7 @@ class CampeonatosController < ApplicationController
       render json: { error: e.message, backtrace: e.backtrace[0..5] }, status: 500
     end
   end
+
 
 
 
