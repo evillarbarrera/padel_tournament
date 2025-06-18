@@ -658,9 +658,17 @@
         console.log('Bloqueos recibidos:', bloqueos);
 
         const eventosBloqueados = bloqueos.map(b => {
+          // Si la fecha viene con espacio (no con T), convertir a ISO completo con Z
+          function toISOFecha(fecha) {
+            if (fecha.includes(' ')) {
+              // ej: "2025-06-16 08:00:00.000" -> "2025-06-16T08:00:00.000Z"
+              return fecha.replace(' ', 'T') + 'Z';
+            }
+            return fecha; // ya en ISO correcto
+          }
 
-          const startIso = b.fechahora_inicio.replace(' ', 'T');
-          const endIso = b.fechahora_fin.replace(' ', 'T');
+          const startIso = toISOFecha(b.fechahora_inicio);
+          const endIso = toISOFecha(b.fechahora_fin);
 
           return {
             title: 'Bloqueado',
