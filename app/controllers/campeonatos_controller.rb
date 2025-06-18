@@ -152,6 +152,7 @@ class CampeonatosController < ApplicationController
         end
       end
 
+      # Obtener bloqueos globales (sin distinguir cancha)
       bloques_bloqueados = HorarioBloqueado.where(campeonato_id: campeonato_id)
 
       partidos = []
@@ -206,14 +207,14 @@ class CampeonatosController < ApplicationController
         partidos: partidos,
         bloqueos: bloques_bloqueados.map { |b| {
           fechahora_inicio: b.fechahora_inicio,
-          fechahora_fin: b.fechahora_fin,
-          cancha_id: b.cancha_id
+          fechahora_fin: b.fechahora_fin
         }}
       }
     rescue => e
       render json: { error: e.message, backtrace: e.backtrace[0..5] }, status: 500
     end
   end
+
 
 
 
