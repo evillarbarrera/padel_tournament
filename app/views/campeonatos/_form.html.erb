@@ -530,203 +530,200 @@
 </script>
 
 <script>
-  document.getElementById('btn-generar-fixture').addEventListener('click', function (event) {
-    event.preventDefault();
+ document.getElementById('btn-generar-fixture').addEventListener('click', function (event) {
+  event.preventDefault();
 
-    // Obtener datos del formulario
-    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    const fechaInicio = document.getElementById('fecha-inicio').value;
-    const fechaFin = document.getElementById('fecha-fin').value;
-    const duracion = parseInt(document.getElementById('duracion').value, 10);
-    const cupoMax = document.getElementById('cupo-max').value;
-    const campeonatoId = parseInt(document.getElementById('campeonato-id').value);
-    const canchas = Array.from(document.querySelectorAll('input[name="canchas[]"]:checked')).map(el => el.value);
+  const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+  const fechaInicio = document.getElementById('fecha-inicio').value;
+  const fechaFin = document.getElementById('fecha-fin').value;
+  const duracion = parseInt(document.getElementById('duracion').value, 10);
+  const cupoMax = document.getElementById('cupo-max').value;
+  const campeonatoId = parseInt(document.getElementById('campeonato-id').value);
+  const canchas = Array.from(document.querySelectorAll('input[name="canchas[]"]:checked')).map(el => el.value);
 
-    // Validaciones básicas antes de enviar
-    if (!fechaInicio || !fechaFin) {
-      alert('Por favor, ingresa fecha de inicio y fecha de fin.');
-      return;
-    }
-    if (isNaN(duracion) || duracion <= 0) {
-      alert('Por favor, ingresa una duración válida.');
-      return;
-    }
-    if (canchas.length === 0) {
-      alert('Selecciona al menos una cancha.');
-      return;
-    }
-    if (isNaN(campeonatoId) || campeonatoId <= 0) {
-      alert('Id de campeonato inválido.');
-      return;
-    }
+  if (!fechaInicio || !fechaFin) {
+    alert('Por favor, ingresa fecha de inicio y fecha de fin.');
+    return;
+  }
+  if (isNaN(duracion) || duracion <= 0) {
+    alert('Por favor, ingresa una duración válida.');
+    return;
+  }
+  if (canchas.length === 0) {
+    alert('Selecciona al menos una cancha.');
+    return;
+  }
+  if (isNaN(campeonatoId) || campeonatoId <= 0) {
+    alert('Id de campeonato inválido.');
+    return;
+  }
 
-    const coloresPorCancha = {
-      1: '#1abc9c',
-      2: '#3498db',
-      3: '#9b59b6',
-      4: '#e67e22',
-      5: '#e74c3c',
-      6: '#2ecc71'
-    };
+  const coloresPorCancha = {
+    1: '#1abc9c',
+    2: '#3498db',
+    3: '#9b59b6',
+    4: '#e67e22',
+    5: '#e74c3c',
+    6: '#2ecc71'
+  };
 
-    fetch('/generar_fixture', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-Token': csrfToken
-      },
-      body: JSON.stringify({
-        fecha_inicio: fechaInicio,
-        fecha_fin: fechaFin,
-        duracion: duracion,
-        canchas: canchas,
-        cupo_max: cupoMax,
-        campeonato_id: campeonatoId
-      })
+  fetch('/generar_fixture', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': csrfToken
+    },
+    body: JSON.stringify({
+      fecha_inicio: fechaInicio,
+      fecha_fin: fechaFin,
+      duracion: duracion,
+      canchas: canchas,
+      cupo_max: cupoMax,
+      campeonato_id: campeonatoId
     })
-    .then(async response => {
-      const data = await response.json();
+  })
+  .then(async response => {
+    const data = await response.json();
 
-      if (!response.ok) {
-        // Mostrar error detallado del backend
-        const mensajeError = data.error || 'Error desconocido del servidor.';
-        document.getElementById('resultado-fixture').innerHTML = `
-          <div class="alert alert-danger">Error al generar fixture: ${mensajeError}</div>`;
-        return;
-      }
+    if (!response.ok) {
+      const mensajeError = data.error || 'Error desconocido del servidor.';
+      document.getElementById('resultado-fixture').innerHTML = `
+        <div class="alert alert-danger">Error al generar fixture: ${mensajeError}</div>`;
+      return;
+    }
 
-      if (!data.partidos || data.partidos.length === 0) {
-        document.getElementById('resultado-fixture').innerHTML = `
-          <div class="alert alert-warning">No se encontraron partidos para mostrar.</div>`;
-        return;
-      }
+    console.log('✅ Partidos recibidos:', data.partidos);
+    console.log('🚫 Bloqueos recibidos:', data.bloqueos);
 
-      // Agrupar partidos por cancha
-      const partidosPorCancha = {};
-      data.partidos.forEach(p => {
-        if (!partidosPorCancha[p.cancha_id]) partidosPorCancha[p.cancha_id] = [];
-        partidosPorCancha[p.cancha_id].push(p);
-      });
+    if (!data.partidos || data.partidos.length === 0) {
+      document.getElementById('resultado-fixture').innerHTML = `
+        <div class="alert alert-warning">No se encontraron partidos para mostrar.</div>`;
+      return;
+    }
 
-      // Construir tabs y contenido
-      let tabsHtml = `<ul class="nav nav-tabs" id="canchasTabs" role="tablist">`;
-      let tabsContentHtml = `<div class="tab-content" id="canchasTabsContent">`;
-
-      canchas.forEach((canchaId, index) => {
-        const activeClass = index === 0 ? 'active' : '';
-        const showClass = index === 0 ? 'show active' : '';
-
-        tabsHtml += `
-          <li class="nav-item" role="presentation">
-            <button class="nav-link ${activeClass}" id="tab-cancha-${canchaId}" data-bs-toggle="tab" data-bs-target="#cancha-${canchaId}" type="button" role="tab" aria-controls="cancha-${canchaId}" aria-selected="${index === 0}">
-              Cancha ${canchaId}
-            </button>
-          </li>
-        `;
-
-        tabsContentHtml += `
-          <div class="tab-pane fade ${showClass}" id="cancha-${canchaId}" role="tabpanel" aria-labelledby="tab-cancha-${canchaId}">
-            <div id="calendar-${canchaId}"></div>
-          </div>
-        `;
-      });
-
-      tabsHtml += `</ul>`;
-      tabsContentHtml += `</div>`;
-
-      const resultadoDiv = document.getElementById('resultado-fixture');
-      resultadoDiv.innerHTML = tabsHtml + tabsContentHtml;
-
-      const calendarios = {};
-      const bloqueos = data.bloqueos || [];
-
-      canchas.forEach(canchaId => {
-        const calendarEl = document.getElementById(`calendar-${canchaId}`);
-
-        const partidosEventos = (partidosPorCancha[canchaId] || []).map(p => {
-          const start = new Date(p.fecha_hora);
-          const end = new Date(start.getTime() + duracion * 60000);
-          return {
-            title: `${p.pareja_1.nombre} vs ${p.pareja_2.nombre}`,
-            start: start.toISOString(),
-            end: end.toISOString(),
-            backgroundColor: coloresPorCancha[canchaId] || '#95a5a6',
-            borderColor: coloresPorCancha[canchaId] || '#95a5a6'
-          };
-        });
-        
-        console.log('Bloqueos recibidos:', bloqueos);
-
-        const eventosBloqueados = bloqueos.map(b => {
-          // Si la fecha viene con espacio (no con T), convertir a ISO completo con Z
-          function toISOFecha(fecha) {
-            if (fecha.includes(' ')) {
-              // ej: "2025-06-16 08:00:00.000" -> "2025-06-16T08:00:00.000Z"
-              return fecha.replace(' ', 'T') + 'Z';
-            }
-            return fecha; // ya en ISO correcto
-          }
-
-          const startIso = toISOFecha(b.fechahora_inicio);
-          const endIso = toISOFecha(b.fechahora_fin);
-
-          return {
-            title: 'Bloqueado',
-            start: startIso,
-            end: endIso,
-            backgroundColor: '#cccccc',
-            borderColor: '#999999',
-            rendering: 'background',
-            overlap: false,
-            display: 'background'
-          };
-        });
-
-        const calendar = new FullCalendar.Calendar(calendarEl, {
-          initialView: 'timeGridWeek',
-          slotMinTime: '08:00:00',
-          slotMaxTime: '23:00:00',
-          timeZone: 'local', 
-          allDaySlot: false,
-          locale: 'es',
-          height: 'auto',
-          initialDate: data.partidos.length > 0
-            ? new Date(data.partidos[0].fecha_hora).toISOString().slice(0, 10)
-            : new Date().toISOString().slice(0, 10),
-          events: [...partidosEventos, ...eventosBloqueados],
-          headerToolbar: {
-            left: 'prev,next today',
-            center: 'title',
-            right: 'timeGridWeek,timeGridDay'
-          }
-        });
-
-        calendar.render();
-        calendarios[canchaId] = calendar;
-      });
-
-      // Ajustar tamaño calendario al cambiar tabs
-      document.querySelectorAll('#canchasTabs button[data-bs-toggle="tab"]').forEach(tabBtn => {
-        tabBtn.addEventListener('shown.bs.tab', (event) => {
-          const canchaId = event.target.id.replace('tab-cancha-', '');
-          if (calendarios[canchaId]) {
-            calendarios[canchaId].updateSize();
-          }
-        });
-      });
-
-      // Ajustar tamaño al mostrar el primer calendario
-      const primeraCancha = canchas[0];
-      if (calendarios[primeraCancha]) {
-        calendarios[primeraCancha].updateSize();
-      }
-
-    })
-    .catch(error => {
-      console.error('Error generando fixture:', error);
-      document.getElementById('resultado-fixture').innerHTML = `<div class="alert alert-danger">Error al generar fixture: ${error.message}</div>`;
+    const partidosPorCancha = {};
+    data.partidos.forEach(p => {
+      if (!partidosPorCancha[p.cancha_id]) partidosPorCancha[p.cancha_id] = [];
+      partidosPorCancha[p.cancha_id].push(p);
     });
+
+    let tabsHtml = `<ul class="nav nav-tabs" id="canchasTabs" role="tablist">`;
+    let tabsContentHtml = `<div class="tab-content" id="canchasTabsContent">`;
+
+    canchas.forEach((canchaId, index) => {
+      const activeClass = index === 0 ? 'active' : '';
+      const showClass = index === 0 ? 'show active' : '';
+
+      tabsHtml += `
+        <li class="nav-item" role="presentation">
+          <button class="nav-link ${activeClass}" id="tab-cancha-${canchaId}" data-bs-toggle="tab" data-bs-target="#cancha-${canchaId}" type="button" role="tab" aria-controls="cancha-${canchaId}" aria-selected="${index === 0}">
+            Cancha ${canchaId}
+          </button>
+        </li>
+      `;
+
+      tabsContentHtml += `
+        <div class="tab-pane fade ${showClass}" id="cancha-${canchaId}" role="tabpanel" aria-labelledby="tab-cancha-${canchaId}">
+          <div id="calendar-${canchaId}"></div>
+        </div>
+      `;
+    });
+
+    tabsHtml += `</ul>`;
+    tabsContentHtml += `</div>`;
+
+    const resultadoDiv = document.getElementById('resultado-fixture');
+    resultadoDiv.innerHTML = `
+      <div class="alert alert-success">✅ Fixture generado con éxito.</div>
+    ` + tabsHtml + tabsContentHtml;
+
+    const calendarios = {};
+    const bloqueos = data.bloqueos || [];
+
+    canchas.forEach(canchaId => {
+      const calendarEl = document.getElementById(`calendar-${canchaId}`);
+
+      const partidosEventos = (partidosPorCancha[parseInt(canchaId)] || []).map(p => {
+        const start = new Date(p.fecha_hora);
+        const end = new Date(start.getTime() + duracion * 60000);
+        return {
+          title: `${p.pareja_1.nombre} vs ${p.pareja_2.nombre}`,
+          start: start.toISOString(),
+          end: end.toISOString(),
+          backgroundColor: coloresPorCancha[canchaId] || '#95a5a6',
+          borderColor: coloresPorCancha[canchaId] || '#95a5a6'
+        };
+      });
+
+      function toISOFecha(fecha) {
+        if (fecha.includes(' ')) {
+          return fecha.replace(' ', 'T') + 'Z';
+        } else if (!fecha.endsWith('Z')) {
+          return fecha + 'Z';
+        }
+        return fecha;
+      }
+
+      const eventosBloqueados = bloqueos.map(b => {
+        const startIso = toISOFecha(b.fechahora_inicio);
+        const endIso = toISOFecha(b.fechahora_fin);
+
+        return {
+          title: 'Bloqueado',
+          start: startIso,
+          end: endIso,
+          backgroundColor: '#cccccc',
+          borderColor: '#999999',
+          rendering: 'background',
+          overlap: false,
+          display: 'background'
+        };
+      });
+
+      const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'timeGridWeek',
+        slotMinTime: '08:00:00',
+        slotMaxTime: '23:00:00',
+        timeZone: 'local',
+        allDaySlot: false,
+        locale: 'es',
+        height: 'auto',
+        initialDate: data.partidos.length > 0
+          ? new Date(data.partidos[0].fecha_hora).toISOString().slice(0, 10)
+          : new Date().toISOString().slice(0, 10),
+        events: [...partidosEventos, ...eventosBloqueados],
+        headerToolbar: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'timeGridWeek,timeGridDay'
+        }
+      });
+
+      calendar.render();
+      calendarios[canchaId] = calendar;
+    });
+
+    document.querySelectorAll('#canchasTabs button[data-bs-toggle="tab"]').forEach(tabBtn => {
+      tabBtn.addEventListener('shown.bs.tab', (event) => {
+        const canchaId = event.target.id.replace('tab-cancha-', '');
+        if (calendarios[canchaId]) {
+          calendarios[canchaId].updateSize();
+        }
+      });
+    });
+
+    const primeraCancha = canchas[0];
+    if (calendarios[primeraCancha]) {
+      calendarios[primeraCancha].updateSize();
+    }
+
+  })
+  .catch(error => {
+    console.error('❌ Error generando fixture:', error);
+    document.getElementById('resultado-fixture').innerHTML = `<div class="alert alert-danger">Error al generar fixture: ${error.message}</div>`;
   });
+});
+
 </script>
 
 
