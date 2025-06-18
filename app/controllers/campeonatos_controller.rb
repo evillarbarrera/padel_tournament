@@ -139,83 +139,111 @@ class CampeonatosController < ApplicationController
                     )
                   end
 
-      if canchas_ids.blank? || parejas.size < 1
-        return render json: { error: 'Se requieren al menos dos parejas y una cancha' }, status: :unprocessable_entity
+      if canchas_ids.blank? || parejas.size < 4
+        return render json: { error: 'Se requieren al menos cuatro parejas y una cancha' }, status: :unprocessable_entity
       end
 
-      total_parejas_necesarias = params[:cupo_max].to_i > 0 ? params[:cupo_max].to_i : 8
-      faltantes = total_parejas_necesarias - parejas.size
+      # Completar con parejas faltantes para múltiplos de 4
+      total = (parejas.size.to_f / 4).ceil * 4
+      (total - parejas.size).times do |i|
+        parejas << OpenStruct.new(id: nil, nombre: "Pareja faltante #{i + 1}")
+      end
 
-      if faltantes > 0
-        faltantes.times do |i|
-          parejas << OpenStruct.new(id: nil, nombre: "Pareja faltante #{i + 1}")
+      # Agrupar de a 4
+      grupos = parejas.shuffle.each_slice(4).to_a
+      partidos = []
+
+      # Generar partidos de grupo
+      grupos.each_with_index do |grupo, i|
+        grupo.combination(2).each do |p1, p2|
+          partidos << {
+            fase: 'grupo',
+            grupo: "Grupo #{('A'.ord + i).chr}",
+            pareja_1: p1,
+            pareja_2: p2
+          }
         end
       end
 
+      # Simular eliminación directa (8 parejas en cuartos)
+      4.times do |i|
+        partidos << {
+          fase: 'cuartos',
+          grupo: nil,
+          pareja_1: OpenStruct.new(id: nil, nombre: "Ganador Grupo #{('A'.ord + i % grupos.size).chr}"),
+          pareja_2: OpenStruct.new(id: nil, nombre: "Clasificado #{i + 1}")
+        }
+      end
+
+      2.times do |i|
+        partidos << {
+          fase: 'semifinal',
+          grupo: nil,
+          pareja_1: OpenStruct.new(id: nil, nombre: "Ganador Cuarto #{i * 2 + 1}"),
+          pareja_2: OpenStruct.new(id: nil, nombre: "Ganador Cuarto #{i * 2 + 2}")
+        }
+      end
+
+      partidos << {
+        fase: 'final',
+        grupo: nil,
+        pareja_1: OpenStruct.new(id: nil, nombre: "Ganador Semi 1"),
+        pareja_2: OpenStruct.new(id: nil, nombre: "Ganador Semi 2")
+      }
+
+      # Bloqueos y asignación de horarios
       bloques_bloqueados = HorarioBloqueado.where(campeonato_id: campeonato_id)
-      partidos = []
-      emparejamientos = parejas.combination(2).to_a.shuffle
       current_time = fecha_inicio.to_datetime.change(hour: 9, min: 0)
       tiempo_por_cancha = Hash.new(current_time)
+      partidos_agendados = []
 
-      emparejamientos.each do |par|
-        partido_asignado = false
+      partidos.each do |partido|
+        asignado = false
         intentos = 0
-        max_intentos = 1000
 
-        while !partido_asignado && intentos < max_intentos
+        while !asignado && intentos < 1000
           canchas_ids.each do |cancha_id|
-            tiempo_actual = tiempo_por_cancha[cancha_id]
-            partido_inicio = tiempo_actual
-            partido_fin = tiempo_actual + duracion.minutes
+            t_actual = tiempo_por_cancha[cancha_id]
+            inicio = t_actual
+            fin = inicio + duracion.minutes
 
             bloqueado = bloques_bloqueados.any? do |bloque|
-              (partido_inicio < bloque.fechahora_fin) &&
-              (partido_fin > bloque.fechahora_inicio)
+              inicio < bloque.fechahora_fin && fin > bloque.fechahora_inicio
             end
 
-            ocupado = partidos.any? do |p|
-              p[:cancha_id] == cancha_id &&
-              (partido_inicio < p[:fecha_hora] + duracion.minutes) &&
-              (partido_fin > p[:fecha_hora])
+            ocupado = partidos_agendados.any? do |p|
+              p[:cancha_id] == cancha_id && inicio < p[:fecha_hora] + duracion.minutes && fin > p[:fecha_hora]
             end
 
             unless bloqueado || ocupado
-              partidos << {
-                pareja_1: { id: par[0].id, nombre: par[0].nombre },
-                pareja_2: { id: par[1].id, nombre: par[1].nombre },
+              partidos_agendados << {
+                pareja_1: { id: partido[:pareja_1].id, nombre: partido[:pareja_1].nombre },
+                pareja_2: { id: partido[:pareja_2].id, nombre: partido[:pareja_2].nombre },
                 cancha_id: cancha_id,
-                fecha_hora: partido_inicio
+                fecha_hora: inicio,
+                fase: partido[:fase],
+                grupo: partido[:grupo]
               }
               tiempo_por_cancha[cancha_id] += duracion.minutes
-              partido_asignado = true
+              asignado = true
               break
             end
           end
 
-          unless partido_asignado
+          unless asignado
             current_time += duracion.minutes
-            if current_time.hour >= 21
-              current_time = current_time.beginning_of_day + 1.day + 9.hours
-            end
-            if current_time > fecha_fin.to_datetime.change(hour: 21, min: 0)
-              return render json: { error: 'No hay más espacio disponible dentro del rango de fechas.' }, status: :unprocessable_entity
-            end
+            current_time = current_time.beginning_of_day + 1.day + 9.hours if current_time.hour >= 21
+            return render json: { error: 'No hay más espacio disponible dentro del rango de fechas.' }, status: :unprocessable_entity if current_time > fecha_fin.to_datetime.change(hour: 21, min: 0)
             intentos += 1
           end
         end
 
-        unless partido_asignado
-          return render json: { error: 'No se pudo asignar un horario libre para un partido.' }, status: :unprocessable_entity
-        end
+        return render json: { error: 'No se pudo asignar un horario libre para un partido.' }, status: :unprocessable_entity unless asignado
       end
 
       render json: {
-        partidos: partidos,
-        bloqueos: bloques_bloqueados.map { |b| {
-          fechahora_inicio: b.fechahora_inicio,
-          fechahora_fin: b.fechahora_fin
-        }}
+        partidos: partidos_agendados,
+        bloqueos: bloques_bloqueados.map { |b| { fechahora_inicio: b.fechahora_inicio, fechahora_fin: b.fechahora_fin } }
       }
     rescue => e
       render json: { error: e.message, backtrace: e.backtrace[0..5] }, status: 500
