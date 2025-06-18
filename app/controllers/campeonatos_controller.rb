@@ -169,9 +169,8 @@ class CampeonatosController < ApplicationController
             partido_fin = current_time + duracion.minutes
 
             bloqueado = bloques_bloqueados.any? do |bloque|
-              bloque.cancha_id == cancha_id &&
-                (partido_inicio < bloque.fechahora_fin) &&
-                (partido_fin > bloque.fechahora_inicio)
+              (partido_inicio < bloque.fechahora_fin) &&
+              (partido_fin > bloque.fechahora_inicio)
             end
 
             unless bloqueado
