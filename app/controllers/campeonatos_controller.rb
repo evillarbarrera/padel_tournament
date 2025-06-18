@@ -152,12 +152,11 @@ class CampeonatosController < ApplicationController
         end
       end
 
-      # Obtener bloqueos globales (sin distinguir cancha)
       bloques_bloqueados = HorarioBloqueado.where(campeonato_id: campeonato_id)
-
       partidos = []
       emparejamientos = parejas.combination(2).to_a.shuffle
       current_time = fecha_inicio.to_datetime.change(hour: 9, min: 0)
+      tiempo_por_cancha = Hash.new(current_time)
 
       emparejamientos.each do |par|
         partido_asignado = false
@@ -166,21 +165,29 @@ class CampeonatosController < ApplicationController
 
         while !partido_asignado && intentos < max_intentos
           canchas_ids.each do |cancha_id|
-            partido_inicio = current_time
-            partido_fin = current_time + duracion.minutes
+            tiempo_actual = tiempo_por_cancha[cancha_id]
+            partido_inicio = tiempo_actual
+            partido_fin = tiempo_actual + duracion.minutes
 
             bloqueado = bloques_bloqueados.any? do |bloque|
               (partido_inicio < bloque.fechahora_fin) &&
               (partido_fin > bloque.fechahora_inicio)
             end
 
-            unless bloqueado
+            ocupado = partidos.any? do |p|
+              p[:cancha_id] == cancha_id &&
+              (partido_inicio < p[:fecha_hora] + duracion.minutes) &&
+              (partido_fin > p[:fecha_hora])
+            end
+
+            unless bloqueado || ocupado
               partidos << {
                 pareja_1: { id: par[0].id, nombre: par[0].nombre },
                 pareja_2: { id: par[1].id, nombre: par[1].nombre },
                 cancha_id: cancha_id,
                 fecha_hora: partido_inicio
               }
+              tiempo_por_cancha[cancha_id] += duracion.minutes
               partido_asignado = true
               break
             end
@@ -204,21 +211,11 @@ class CampeonatosController < ApplicationController
       end
 
       render json: {
-        partidos: partidos.map do |p|
-          {
-            pareja_1: p[:pareja_1],
-            pareja_2: p[:pareja_2],
-            cancha_id: p[:cancha_id],
-            # Enviar fecha en formato ISO8601 sin zona (sin 'Z')
-            fecha_hora: p[:fecha_hora].strftime("%Y-%m-%dT%H:%M:%S")
-          }
-        end,
-        bloqueos: bloques_bloqueados.map do |b|
-          {
-            fechahora_inicio: b.fechahora_inicio.strftime("%Y-%m-%dT%H:%M:%S"),
-            fechahora_fin: b.fechahora_fin.strftime("%Y-%m-%dT%H:%M:%S")
-          }
-        end
+        partidos: partidos,
+        bloqueos: bloques_bloqueados.map { |b| {
+          fechahora_inicio: b.fechahora_inicio,
+          fechahora_fin: b.fechahora_fin
+        }}
       }
     rescue => e
       render json: { error: e.message, backtrace: e.backtrace[0..5] }, status: 500
