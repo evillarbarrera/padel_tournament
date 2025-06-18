@@ -152,76 +152,70 @@ class CampeonatosController < ApplicationController
         end
       end
 
-      # Obtener horarios bloqueados para el campeonato
       bloques_bloqueados = HorarioBloqueado.where(campeonato_id: campeonato_id)
 
       partidos = []
       emparejamientos = parejas.combination(2).to_a.shuffle
       current_time = fecha_inicio.to_datetime.change(hour: 9, min: 0)
-      cancha_index = 0
 
       emparejamientos.each do |par|
+        partido_asignado = false
         intentos = 0
         max_intentos = 1000
 
-        loop do
-          # Validar que current_time no exceda fecha_fin a las 21:00
-          if current_time > fecha_fin.to_datetime.change(hour: 21, min: 0)
-            return render json: { error: 'No hay más espacio disponible dentro del rango de fechas.' }, status: :unprocessable_entity
+        while !partido_asignado && intentos < max_intentos
+          canchas_ids.each do |cancha_id|
+            partido_inicio = current_time
+            partido_fin = current_time + duracion.minutes
+
+            bloqueado = bloques_bloqueados.any? do |bloque|
+              bloque.cancha_id == cancha_id &&
+                (partido_inicio < bloque.fechahora_fin) &&
+                (partido_fin > bloque.fechahora_inicio)
+            end
+
+            unless bloqueado
+              partidos << {
+                pareja_1: { id: par[0].id, nombre: par[0].nombre },
+                pareja_2: { id: par[1].id, nombre: par[1].nombre },
+                cancha_id: cancha_id,
+                fecha_hora: current_time
+              }
+              partido_asignado = true
+              break
+            end
           end
 
-          # Verifica si el horario actual choca con algún bloqueado
-          partido_inicio = current_time
-          partido_fin = current_time + duracion.minutes
-
-          bloqueado = bloques_bloqueados.any? do |bloque|
-            bloque_inicio = bloque.fechahora_inicio
-            bloque_fin = bloque.fechahora_fin
-            # Verificar si los intervalos se traslapan
-            (partido_inicio < bloque_fin) && (partido_fin > bloque_inicio)
-          end
-
-          # Si no está bloqueado, asignar partido y salir del loop
-          break unless bloqueado
-
-          # Si está bloqueado, avanzar al siguiente slot de tiempo
-          current_time += duracion.minutes
-
-          # Si pasamos las 21:00, mover al día siguiente a las 9:00
-          if current_time.hour >= 21
-            current_time = current_time.beginning_of_day + 1.day + 9.hours
-          end
-
-          intentos += 1
-          if intentos > max_intentos
-            return render json: { error: 'No se pudo generar el fixture por exceso de bloques bloqueados.' }, status: :unprocessable_entity
+          unless partido_asignado
+            current_time += duracion.minutes
+            if current_time.hour >= 21
+              current_time = current_time.beginning_of_day + 1.day + 9.hours
+            end
+            if current_time > fecha_fin.to_datetime.change(hour: 21, min: 0)
+              return render json: { error: 'No hay más espacio disponible dentro del rango de fechas.' }, status: :unprocessable_entity
+            end
+            intentos += 1
           end
         end
 
-        partidos << {
-          pareja_1: { id: par[0].id, nombre: par[0].nombre },
-          pareja_2: { id: par[1].id, nombre: par[1].nombre },
-          cancha_id: canchas_ids[cancha_index % canchas_ids.size],
-          fecha_hora: current_time
-        }
-
-        # Avanzar el tiempo para el siguiente partido
-        current_time += duracion.minutes
-
-        # Si pasamos las 21:00, mover al día siguiente a las 9:00
-        if current_time.hour >= 21
-          current_time = current_time.beginning_of_day + 1.day + 9.hours
+        unless partido_asignado
+          return render json: { error: 'No se pudo asignar un horario libre para un partido.' }, status: :unprocessable_entity
         end
-
-        cancha_index += 1
       end
 
-      # También puedes devolver los bloqueos para el frontend
-      render json: { partidos: partidos, bloqueos: bloques_bloqueados.map { |b| { fechahora_inicio: b.fechahora_inicio, fechahora_fin: b.fechahora_fin } } }
+      render json: {
+        partidos: partidos,
+        bloqueos: bloques_bloqueados.map { |b| {
+          fechahora_inicio: b.fechahora_inicio,
+          fechahora_fin: b.fechahora_fin,
+          cancha_id: b.cancha_id
+        }}
+      }
     rescue => e
       render json: { error: e.message, backtrace: e.backtrace[0..5] }, status: 500
     end
   end
+
 
 
 
