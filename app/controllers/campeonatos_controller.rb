@@ -76,37 +76,64 @@ class CampeonatosController < ApplicationController
 
   def guardar_bloqueos
     campeonato = Campeonato.find(params[:id])
-    bloqueos = params[:bloqueos]
+
+    bloqueos_nuevos = params[:bloqueos_nuevos] || []
+    bloqueos_eliminados = params[:bloqueos_eliminados] || []
+
     fecha_inicio = Date.parse(params[:fecha_inicio])
     fecha_termino = Date.parse(params[:fecha_termino])
 
-    bloqueos.each do |bloqueo|
+    dia_a_num = {
+      "Lunes" => 1, "Martes" => 2, "Miércoles" => 3,
+      "Jueves" => 4, "Viernes" => 5, "Sábado" => 6, "Domingo" => 7
+    }
+
+    # Crear nuevos bloqueos
+    bloqueos_nuevos.each do |bloqueo|
       dia = bloqueo[:dia]
       hora = bloqueo[:hora].to_i
+      dia_num = dia_a_num[dia]
 
-      # Convertir nombre de día a número (lunes = 1, domingo = 7)
-      dia_num = {
-        "Lunes" => 1, "Martes" => 2, "Miércoles" => 3,
-        "Jueves" => 4, "Viernes" => 5, "Sábado" => 6, "Domingo" => 7
-      }[dia]
-
-      # Generar todas las fechas entre fecha_inicio y fecha_termino con ese día
       (fecha_inicio..fecha_termino).each do |fecha|
-        if fecha.cwday == dia_num
-          fechahora_inicio = fecha.to_datetime.change({ hour: hora, min: 0 })
-          fechahora_fin = fechahora_inicio + 1.hour
+        next unless fecha.cwday == dia_num
 
-          HorarioBloqueado.create!(
-            campeonato_id: campeonato.id,
-            fechahora_inicio: fechahora_inicio,
-            fechahora_fin: fechahora_fin
-          )
-        end
+        fechahora_inicio = fecha.to_datetime.change(hour: hora, min: 0)
+        fechahora_fin = fechahora_inicio + 1.hour
+
+        # Evitar duplicados
+        HorarioBloqueado.find_or_create_by!(
+          campeonato_id: campeonato.id,
+          fechahora_inicio: fechahora_inicio,
+          fechahora_fin: fechahora_fin
+        )
+      end
+    end
+
+    # Eliminar bloqueos que el usuario desmarcó
+    bloqueos_eliminados.each do |bloqueo|
+      dia = bloqueo[:dia]
+      hora = bloqueo[:hora].to_i
+      dia_num = dia_a_num[dia]
+
+      (fecha_inicio..fecha_termino).each do |fecha|
+        next unless fecha.cwday == dia_num
+
+        fechahora_inicio = fecha.to_datetime.change(hour: hora, min: 0)
+        fechahora_fin = fechahora_inicio + 1.hour
+
+        HorarioBloqueado.where(
+          campeonato_id: campeonato.id,
+          fechahora_inicio: fechahora_inicio,
+          fechahora_fin: fechahora_fin
+        ).destroy_all
       end
     end
 
     render json: { success: true }
+  rescue => e
+    render json: { error: e.message }, status: :unprocessable_entity
   end
+
 
   def bloqueos
     campeonato = Campeonato.find(params[:id])

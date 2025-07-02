@@ -400,9 +400,11 @@
 
     const dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
     const bloqueadorBody = document.getElementById("bloqueador-body");
-    const campeonatoId = <%= @campeonato.id %>; // Debe estar presente en tu template
+    const campeonatoId = <%= @campeonato.id %>; // Asume que estás usando ERB (Rails)
 
-    // Construcción de la tabla - filas desde las 08 hasta las 22 horas
+    let bloqueosOriginales = [];
+
+    // Construcción de la tabla de horarios
     for (let h = 8; h <= 22; h++) {
       const row = document.createElement("tr");
 
@@ -433,48 +435,29 @@
 
     fetch(urlBloqueos)
       .then(res => {
-        if (!res.ok) {
-          throw new Error(`❌ Error al cargar bloqueos (${res.status})`);
-        }
+        if (!res.ok) throw new Error(`❌ Error al cargar bloqueos (${res.status})`);
         return res.json();
       })
       .then(data => {
         console.log("📦 Bloqueos recibidos:", data);
-
-        // Días en JS: Domingo = 0, Lunes = 1, ...
         const diasJS = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 
         data.forEach(bloqueo => {
-          if (!bloqueo.fechahora_inicio) {
-            console.warn("Bloqueo sin fecha de inicio:", bloqueo);
-            return;
-          }
+          if (!bloqueo.fechahora_inicio) return;
 
-          const fecha = new Date(bloqueo.fechahora_inicio);
-          const dia = diasJS[fecha.getDay()]; // nombre día local
-          const hora = fecha.getHours();      // hora local
+          const fecha = new Date(bloqueo.fechahora_inicio); // ya debe venir con -04:00
+          const dia = diasJS[fecha.getDay()];
+          const hora = fecha.getHours(); // hora local chilena si backend está bien configurado
 
-          console.log(`Procesando bloqueo: Día local: ${dia}, Hora local: ${hora}`);
+          console.log(`Procesando bloqueo: Día: ${dia}, Hora: ${hora}`);
 
-          if (!dias.includes(dia)) {
-            console.warn(`Día no reconocido en tabla: ${dia}`);
-            return;
-          }
-
-          // Solo marcar si la hora está en el rango visible
-          if (hora < 8 || hora > 22) {
-            console.log(`Bloqueo fuera del rango visible: ${dia} ${hora}`);
-            return;
-          }
+          if (!dias.includes(dia) || hora < 8 || hora > 22) return;
 
           const selector = `.bloque-horario[data-dia="${dia}"][data-hora="${hora}"]`;
           const cell = document.querySelector(selector);
+          if (cell) cell.classList.add("table-primary");
 
-          if (cell) {
-            cell.classList.add("table-primary");
-          } else {
-            console.warn(`No se encontró celda para ${dia} ${hora}`);
-          }
+          bloqueosOriginales.push({ dia, hora: hora.toString() });
         });
       })
       .catch(error => {
@@ -492,12 +475,18 @@
           hora: cell.dataset.hora
         }));
 
-      console.log("📤 Enviando bloqueos:", seleccionados);
+      const eliminados = bloqueosOriginales.filter(
+        original => !seleccionados.some(
+          s => s.dia === original.dia && s.hora === original.hora
+        )
+      );
+
+      console.log("📤 Enviando bloqueos nuevos:", seleccionados);
+      console.log("🗑️ Bloqueos eliminados:", eliminados);
       console.log("📅 Fecha inicio:", fecha_inicio);
       console.log("📅 Fecha término:", fecha_termino);
 
       const urlGuardar = `/campeonatos/${campeonatoId}/guardar_bloqueos`;
-      console.log("📨 URL POST:", urlGuardar);
 
       fetch(urlGuardar, {
         method: "POST",
@@ -506,29 +495,30 @@
           "X-CSRF-Token": document.querySelector("[name='csrf-token']").content
         },
         body: JSON.stringify({
-          bloqueos: seleccionados,
+          bloqueos_nuevos: seleccionados,
+          bloqueos_eliminados: eliminados,
           fecha_inicio,
           fecha_termino
         })
       })
         .then(res => {
           console.log("🔽 Respuesta POST status:", res.status);
-          if (!res.ok) {
-            throw new Error(`❌ Error al guardar bloqueos (${res.status})`);
-          }
+          if (!res.ok) throw new Error(`❌ Error al guardar bloqueos (${res.status})`);
           return res.json();
         })
         .then(data => {
           console.log("✅ Bloqueos guardados correctamente:", data);
           alert("Bloqueos guardados con éxito.");
+          bloqueosOriginales = [...seleccionados]; // actualiza los originales
         })
         .catch(error => {
           console.error("❌ Error al guardar bloqueos:", error);
-          alert("Error al guardar bloqueos.");
+          alert("Error al guardar bloqueos: " + error.message);
         });
     });
   });
 </script>
+
 
 <script>
   document.getElementById('btn-generar-fixture').addEventListener('click', function (event) {
